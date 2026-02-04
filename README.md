@@ -68,7 +68,7 @@ src/main/java/com/wuubangdev/portfolio
 Vì `application.properties` đã được loại bỏ khỏi Git để bảo mật, hãy tạo file mới:
 
 ```bash
-cp src/main/resources/application.properties.example src/main/resources/application.properties
+cp src/main/resources/application.example.properties src/main/resources/application.properties
 
 ```
 
