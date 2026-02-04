@@ -12,6 +12,7 @@ Dự án tuân thủ nguyên tắc **Dependency Rule**: Sự phụ thuộc chỉ
 
 ### 📁 Cấu trúc thư mục (Package Structure)
 
+```text
 src/main/java/com/wuubangdev/portfolio
 │
 ├── common/                # Tiện ích dùng chung (Exceptions, Utils, Constants)
