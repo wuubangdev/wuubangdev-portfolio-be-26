@@ -1,10 +1,3 @@
-Đây là nội dung file **README.md** hoàn chỉnh, được tối ưu hóa dựa trên file `pom.xml` (Java 21, Spring Boot 4) và cấu trúc Hexagonal mà chúng ta đã thống nhất.
-
-Bạn có thể copy toàn bộ nội dung dưới đây và dán vào file `README.md` của mình.
-
----
-
-```markdown
 # 🚀 Wuubangdev Portfolio - Backend (Hexagonal Architecture)
 
 Dự án Backend cho Portfolio cá nhân, được xây dựng trên nền tảng **Java 21** và **Spring Boot 4.x**. Hệ thống áp dụng kiến trúc **Hexagonal (Ports and Adapters)** để tách biệt hoàn toàn logic nghiệp vụ khỏi các chi tiết công nghệ, giúp dễ dàng mở rộng và bảo trì.
@@ -19,7 +12,6 @@ Dự án tuân thủ nguyên tắc **Dependency Rule**: Sự phụ thuộc chỉ
 
 ### 📁 Cấu trúc thư mục (Package Structure)
 
-```text
 src/main/java/com/wuubangdev/portfolio
 │
 ├── common/                # Tiện ích dùng chung (Exceptions, Utils, Constants)
@@ -111,15 +103,3 @@ Dự án tích hợp sẵn bộ công cụ test cho từng layer:
 ---
 
 *Created with ❤️ by **Wuubangdev***
-
-```
-
----
-
-### Bước tiếp theo bạn cần làm:
-1. Tạo file `src/main/resources/application.properties.example` và điền các key trống vào đó để người khác (hoặc chính bạn khi deploy) biết cần cấu hình những gì.
-2. Cập nhật thêm phần **MapStruct** vào `pom.xml` vì hiện tại bạn mới chỉ có **Lombok**, thiếu MapStruct sẽ khiến việc chuyển đổi dữ liệu giữa các Layer rất vất vả.
-
-**Bạn có muốn tôi hỗ trợ viết nội dung cho file `application.properties.example` dựa trên các Dependency hiện có của bạn không?**
-
-```
