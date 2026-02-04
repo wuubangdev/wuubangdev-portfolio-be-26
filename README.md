@@ -15,26 +15,42 @@ Dự án tuân thủ nguyên tắc **Dependency Rule**: Sự phụ thuộc chỉ
 ```text
 src/main/java/com/wuubangdev/portfolio
 │
-├── common/                     # Tiện ích thuần Java, không dính Spring
-│   ├── exception/              # Global Business Exceptions
-│   └── util/                   # DateUtils, StringUtils, v.v.
+├── common/                     # TIỆN ÍCH THUẦN JAVA (POJO)
+│   ├── exception/              # Các Exception định nghĩa cho nghiệp vụ (e.g., BusinessException)
+│   └── util/                   # Các helper static (e.g., StringUtils, DateMapper)
 │
-├── infrastructure/             # GLOBAL INFRASTRUCTURE (Cấu hình chung toàn hệ thống)
-│   ├── security/               # Security Config
-│   │   ├── config/             # WebSecurityConfig.java, PasswordEncoder.java
-│   │   ├── jwt/                # JwtTokenProvider.java, JwtFilter.java
-│   │   └── userdetail/         # CustomUserDetailsService.java
-│   ├── database/               # Cấu hình DataSource, Transaction, Auditing
-│   ├── swagger/                # Cấu hình OpenAPI/Swagger
-│   └── advice/                 # GlobalExceptionHandler.java (Bắt lỗi từ Controller)
+├── infrastructure/             # HẠ TẦNG KỸ THUẬT (Adapters & Configs)
+│   ├── global/                 # Cấu hình hệ thống (Spring-heavy)
+│   │   ├── security/           # JWT, WebSecurityConfig, PasswordEncoder
+│   │   ├── swagger/            # OpenAPI/Swagger Configuration
+│   │   ├── database/           # DataSource, Hibernate Dialects, Auditing
+│   │   └── advice/             # GlobalExceptionHandler (@ControllerAdvice)
+│   │
+│   ├── shared/                 # Adapter kỹ thuật dùng chung cho nhiều module
+│   │   ├── storage/            # Cloudinary/S3 Adapter
+│   │   ├── mail/               # Email Sender Adapter
+│   │   └── messaging/          # Kafka/RabbitMQ Producers/Consumers
+│   │
+│   └── persistence/            # (Optional) Base Persistence logic
+│       └── base/               # Các BaseEntity, BaseRepository dùng chung
 │
-└── modules/                    # CHIA THEO MODULE NGHIỆP VỤ (Local Infrastructure)
-    └── [module_name]/
-        ├── domain/             # Core Logic
-        ├── application/        # Use Cases
-        └── infrastructure/     # Local Config (Chỉ chứa Bean riêng của module đó)
-            ├── adapter/
-            └── config/         # Cấu hình Bean riêng (e.g., ModuleOrderConfig.java)
+└── modules/                    # NGHIỆP VỤ CHÍNH (Business Modules)
+    └── [module_name]/          # Ví dụ: module 'project' hoặc 'user'
+        ├── domain/             # (Lớp 1) TRÁI TIM: Chỉ chứa Plain Java
+        │   ├── model/          # Entities, Value Objects
+        │   ├── port/           # Output Ports (Interfaces: Repository, MailPort)
+        │   └── service/        # Domain Services (Logic nội bộ module)
+        │
+        ├── application/        # (Lớp 2) ĐIỀU PHỐI: Use Cases
+        │   ├── port/in/        # Input Ports (Interfaces cho Controller gọi)
+        │   ├── service/        # Use Case Implementations
+        │   └── dto/            # Request/Response DTOs
+        │
+        └── infrastructure/     # (Lớp 3) CHI TIẾT CỦA MODULE (Adapters)
+            ├── adapter/        # Implementations (Controller, JpaRepository)
+            │   ├── input/      # Web Controllers
+            │   └── output/     # Persistence Adapters
+            └── config/         # Khai báo Bean riêng cho module (ModuleBeanConfig)
 ```
 
 ---
