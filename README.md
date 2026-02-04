@@ -15,27 +15,26 @@ Dự án tuân thủ nguyên tắc **Dependency Rule**: Sự phụ thuộc chỉ
 ```text
 src/main/java/com/wuubangdev/portfolio
 │
-├── common/                # Tiện ích dùng chung (Exceptions, Utils, Constants)
+├── common/                     # Tiện ích thuần Java, không dính Spring
+│   ├── exception/              # Global Business Exceptions
+│   └── util/                   # DateUtils, StringUtils, v.v.
 │
-└── modules/               # Chia theo Business Module (e.g., Project, User, Blog)
+├── infrastructure/             # GLOBAL INFRASTRUCTURE (Cấu hình chung toàn hệ thống)
+│   ├── security/               # Security Config
+│   │   ├── config/             # WebSecurityConfig.java, PasswordEncoder.java
+│   │   ├── jwt/                # JwtTokenProvider.java, JwtFilter.java
+│   │   └── userdetail/         # CustomUserDetailsService.java
+│   ├── database/               # Cấu hình DataSource, Transaction, Auditing
+│   ├── swagger/                # Cấu hình OpenAPI/Swagger
+│   └── advice/                 # GlobalExceptionHandler.java (Bắt lỗi từ Controller)
+│
+└── modules/                    # CHIA THEO MODULE NGHIỆP VỤ (Local Infrastructure)
     └── [module_name]/
-        ├── domain/        # CORE: Logic nghiệp vụ (Pure Java - No Framework)
-        │   ├── model/     # Domain Entities, Value Objects
-        │   ├── repository/# Output Ports (Interfaces)
-        │   └── service/   # Domain Services (Logic nghiệp vụ phức tạp)
-        │
-        ├── application/   # USE CASES: Điều phối luồng dữ liệu
-        │   ├── port/      # Input Ports (Interface cho Web/API)
-        │   ├── service/   # Implementation của Use Cases
-        │   └── dto/       # Data Transfer Objects (Request/Response)
-        │
-        └── infrastructure/# TECHNOLOGY: Chi tiết cài đặt (Spring Boot)
-            ├── adapter/   
-            │   ├── input/ # Web Controllers, Message Consumers
-            │   └── output/# JPA Repositories, External API Adapters
-            ├── mapper/    # Chuyển đổi dữ liệu (MapStruct)
-            └── config/    # Bean Configuration (Cấu hình Spring Context)
-
+        ├── domain/             # Core Logic
+        ├── application/        # Use Cases
+        └── infrastructure/     # Local Config (Chỉ chứa Bean riêng của module đó)
+            ├── adapter/
+            └── config/         # Cấu hình Bean riêng (e.g., ModuleOrderConfig.java)
 ```
 
 ---
