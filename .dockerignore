@@ -1,0 +1,9 @@
+target/
+*.jar
+*.war
+.mvn/wrapper/maven-wrapper.jar
+!.mvn/wrapper/maven-wrapper.properties
+src/test/
+*.iml
+.idea/
+.DS_Store

@@ -1,5 +1,7 @@
 package com.wuubangdev.portfolio.modules.user.application.service;
 
+import com.wuubangdev.portfolio.infrastructure.global.exception.BusinessException;
+import com.wuubangdev.portfolio.infrastructure.global.exception.ResourceNotFoundException;
 import com.wuubangdev.portfolio.infrastructure.global.security.jwt.JwtTokenProvider;
 import com.wuubangdev.portfolio.modules.user.application.dto.*;
 import com.wuubangdev.portfolio.modules.user.domain.model.Role;
@@ -27,16 +29,15 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public void register(RegisterRequest request) {
-        // Kiểm tra trùng lặp (Cần thêm method existsByUsername vào Port và Adapter)
         if (userRepositoryPort.findByUsername(request.username()).isPresent()) {
-            throw new RuntimeException("Username already exists!");
+            throw new BusinessException("Username '" + request.username() + "' already exists");
         }
 
         User user = User.builder()
                 .username(request.username())
                 .email(request.email())
                 .password(passwordEncoder.encode(request.password()))
-                .roles(List.of(Role.ROLE_USER)) // Mặc định role USER
+                .roles(List.of(Role.ROLE_USER))
                 .build();
 
         userRepositoryPort.save(user);
@@ -44,22 +45,17 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public LoginResponse login(LoginRequest request) {
-        // 1. Xác thực thông tin qua Spring Security
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
         );
-
-        // 2. Tạo JWT Token
         String token = jwtTokenProvider.generateToken(authentication.getName());
-
         return new LoginResponse(token, "Bearer");
     }
 
     @Override
     public UserResponse getProfile(String username) {
         User user = userRepositoryPort.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
+                .orElseThrow(() -> new ResourceNotFoundException("User", username));
         return new UserResponse(user.getUsername(), user.getEmail(), user.getRoles());
     }
 }
