@@ -26,6 +26,7 @@ public class ProfileMapper {
                 .resumeUrl(entity.getResumeUrl())
                 .location(entity.getLocation())
                 .email(entity.getEmail())
+                .phone(entity.getPhone())
                 .socialLinks(links)
                 .build();
     }
@@ -46,6 +47,7 @@ public class ProfileMapper {
         entity.setResumeUrl(domain.getResumeUrl());
         entity.setLocation(domain.getLocation());
         entity.setEmail(domain.getEmail());
+        entity.setPhone(domain.getPhone());
         entity.setSocialLinks(links);
         return entity;
     }

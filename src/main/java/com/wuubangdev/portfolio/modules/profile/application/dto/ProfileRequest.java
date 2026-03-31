@@ -10,6 +10,7 @@ public record ProfileRequest(
         String resumeUrl,
         String location,
         String email,
+        String phone,
         List<SocialLinkDto> socialLinks
 ) {
     public record SocialLinkDto(String platform, String url, String icon) {}

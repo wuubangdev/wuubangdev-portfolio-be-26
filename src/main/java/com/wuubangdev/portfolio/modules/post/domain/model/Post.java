@@ -9,6 +9,7 @@ public class Post {
     private Long id;
     private String title;
     private String slug;
+    private String category;
     private String content; // markdown
     private String summary;
     private String coverImageUrl;

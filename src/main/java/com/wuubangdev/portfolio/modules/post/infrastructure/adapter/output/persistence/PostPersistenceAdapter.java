@@ -16,6 +16,7 @@ public class PostPersistenceAdapter implements PostRepositoryPort {
 
     private Post toDomain(PostJpaEntity e) {
         return Post.builder().id(e.getId()).title(e.getTitle()).slug(e.getSlug())
+                .category(e.getCategory())
                 .content(e.getContent()).summary(e.getSummary()).coverImageUrl(e.getCoverImageUrl())
                 .tags(e.getTags()).published(e.getPublished()).build();
     }
@@ -23,6 +24,7 @@ public class PostPersistenceAdapter implements PostRepositoryPort {
     private PostJpaEntity toEntity(Post p) {
         PostJpaEntity e = new PostJpaEntity();
         e.setId(p.getId()); e.setTitle(p.getTitle()); e.setSlug(p.getSlug());
+        e.setCategory(p.getCategory());
         e.setContent(p.getContent()); e.setSummary(p.getSummary()); e.setCoverImageUrl(p.getCoverImageUrl());
         e.setTags(p.getTags()); e.setPublished(p.getPublished());
         return e;

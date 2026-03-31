@@ -30,6 +30,7 @@ public class ProfileJpaEntity extends BaseEntity {
     private String resumeUrl;
     private String location;
     private String email;
+    private String phone;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "profile_social_links", joinColumns = @JoinColumn(name = "profile_id"))

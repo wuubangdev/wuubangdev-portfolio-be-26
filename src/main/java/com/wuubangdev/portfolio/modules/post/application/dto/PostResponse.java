@@ -6,6 +6,7 @@ public record PostResponse(
         Long id,
         String title,
         String slug,
+        String category,
         String content,
         String summary,
         String coverImageUrl,

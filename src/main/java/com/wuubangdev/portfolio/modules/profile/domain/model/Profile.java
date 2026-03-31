@@ -18,5 +18,6 @@ public class Profile {
     private String resumeUrl;
     private String location;
     private String email;
+    private String phone;
     private List<SocialLink> socialLinks;
 }

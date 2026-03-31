@@ -31,25 +31,31 @@ public class PostController {
 
     // --- ADMIN ---
     @GetMapping("/api/v1/admin/posts")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<PostResponse>> getAllAdmin() {
         return ResponseEntity.ok(postService.getAllPosts());
     }
 
+    @GetMapping("/api/v1/admin/posts/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<PostResponse> getByIdAdmin(@PathVariable Long id) {
+        return ResponseEntity.ok(postService.getById(id));
+    }
+
     @PostMapping("/api/v1/admin/posts")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<PostResponse> create(@Valid @RequestBody PostRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(postService.create(request));
     }
 
     @PutMapping("/api/v1/admin/posts/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<PostResponse> update(@PathVariable Long id, @Valid @RequestBody PostRequest request) {
         return ResponseEntity.ok(postService.update(id, request));
     }
 
     @DeleteMapping("/api/v1/admin/posts/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         postService.delete(id);
         return ResponseEntity.noContent().build();

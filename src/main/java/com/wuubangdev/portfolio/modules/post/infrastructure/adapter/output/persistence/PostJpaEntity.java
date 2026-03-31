@@ -20,6 +20,8 @@ public class PostJpaEntity extends BaseEntity {
     @Column(unique = true, nullable = false)
     private String slug;
 
+    private String category;
+
     @Column(columnDefinition = "LONGTEXT")
     private String content;
 

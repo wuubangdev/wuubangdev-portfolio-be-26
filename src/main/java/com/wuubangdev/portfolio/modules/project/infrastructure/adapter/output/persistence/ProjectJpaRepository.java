@@ -2,4 +2,9 @@ package com.wuubangdev.portfolio.modules.project.infrastructure.adapter.output.p
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface ProjectJpaRepository extends JpaRepository<ProjectJpaEntity, Long> {}
+import java.util.Optional;
+
+public interface ProjectJpaRepository extends JpaRepository<ProjectJpaEntity, Long> {
+    Optional<ProjectJpaEntity> findBySlug(String slug);
+    boolean existsBySlug(String slug);
+}

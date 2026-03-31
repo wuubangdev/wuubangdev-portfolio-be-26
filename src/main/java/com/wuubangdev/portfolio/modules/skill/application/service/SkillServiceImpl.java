@@ -1,6 +1,7 @@
 package com.wuubangdev.portfolio.modules.skill.application.service;
 
 import com.wuubangdev.portfolio.infrastructure.global.exception.ResourceNotFoundException;
+import com.wuubangdev.portfolio.modules.skill.application.mapper.SkillApplicationMapper;
 import com.wuubangdev.portfolio.modules.skill.application.dto.SkillRequest;
 import com.wuubangdev.portfolio.modules.skill.application.dto.SkillResponse;
 import com.wuubangdev.portfolio.modules.skill.domain.model.Skill;
@@ -16,19 +17,18 @@ import java.util.List;
 public class SkillServiceImpl implements SkillService {
 
     private final SkillRepositoryPort skillRepositoryPort;
+    private final SkillApplicationMapper skillApplicationMapper;
 
     @Override
     @Transactional
     public SkillResponse createSkill(SkillRequest request) {
-        Skill skill = Skill.builder()
-                .name(request.name()).category(request.category()).level(request.level())
-                .icon(request.icon()).displayOrder(request.displayOrder()).build();
-        return toResponse(skillRepositoryPort.save(skill));
+        Skill skill = skillApplicationMapper.toNewDomain(request);
+        return skillApplicationMapper.toResponse(skillRepositoryPort.save(skill));
     }
 
     @Override
     public List<SkillResponse> getAllSkills() {
-        return skillRepositoryPort.findAll().stream().map(this::toResponse).toList();
+        return skillRepositoryPort.findAll().stream().map(skillApplicationMapper::toResponse).toList();
     }
 
     @Override
@@ -36,10 +36,8 @@ public class SkillServiceImpl implements SkillService {
     public SkillResponse updateSkill(Long id, SkillRequest request) {
         Skill skill = skillRepositoryPort.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Skill", id));
-        skill.setName(request.name()); skill.setCategory(request.category());
-        skill.setLevel(request.level()); skill.setIcon(request.icon());
-        skill.setDisplayOrder(request.displayOrder());
-        return toResponse(skillRepositoryPort.save(skill));
+        Skill updatedSkill = skillApplicationMapper.updateDomain(skill, request);
+        return skillApplicationMapper.toResponse(skillRepositoryPort.save(updatedSkill));
     }
 
     @Override
@@ -47,9 +45,5 @@ public class SkillServiceImpl implements SkillService {
     public void deleteSkill(Long id) {
         skillRepositoryPort.findById(id).orElseThrow(() -> new ResourceNotFoundException("Skill", id));
         skillRepositoryPort.deleteById(id);
-    }
-
-    private SkillResponse toResponse(Skill s) {
-        return new SkillResponse(s.getId(), s.getName(), s.getCategory(), s.getLevel(), s.getIcon(), s.getDisplayOrder());
     }
 }

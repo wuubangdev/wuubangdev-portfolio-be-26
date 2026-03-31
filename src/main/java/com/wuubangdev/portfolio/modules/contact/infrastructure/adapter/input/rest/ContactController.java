@@ -24,13 +24,13 @@ public class ContactController {
     }
 
     @GetMapping("/api/v1/admin/contacts")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<ContactResponse>> getAll() {
         return ResponseEntity.ok(contactService.getAll());
     }
 
     @PatchMapping("/api/v1/admin/contacts/{id}/read")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ContactResponse> markAsRead(@PathVariable Long id) {
         return ResponseEntity.ok(contactService.markAsRead(id));
     }

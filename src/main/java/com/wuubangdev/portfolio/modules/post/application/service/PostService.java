@@ -10,6 +10,7 @@ public interface PostService {
     List<PostResponse> getPublishedPosts();
     List<PostResponse> getAllPosts();
     PostResponse getBySlug(String slug);
+    PostResponse getById(Long id);
     PostResponse update(Long id, PostRequest request);
     void delete(Long id);
 }

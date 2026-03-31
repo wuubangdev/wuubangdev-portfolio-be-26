@@ -8,7 +8,11 @@ import java.util.List;
 public class Project {
     private Long id;
     private String title;
+    private String slug;
+    private String category;
+    private List<String> tags;
     private String description;
+    private String content;
     private List<String> techStack;
     private String imageUrl;
     private String projectUrl;

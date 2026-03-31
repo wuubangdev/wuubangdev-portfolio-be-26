@@ -23,20 +23,25 @@ public class ProjectController {
         return ResponseEntity.ok(projectService.getAll());
     }
 
+    @GetMapping("/api/v1/projects/{slug}")
+    public ResponseEntity<ProjectResponse> getBySlug(@PathVariable String slug) {
+        return ResponseEntity.ok(projectService.getBySlug(slug));
+    }
+
     @PostMapping("/api/v1/admin/projects")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ProjectResponse> create(@Valid @RequestBody ProjectRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(projectService.create(request));
     }
 
     @PutMapping("/api/v1/admin/projects/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ProjectResponse> update(@PathVariable Long id, @Valid @RequestBody ProjectRequest request) {
         return ResponseEntity.ok(projectService.update(id, request));
     }
 
     @DeleteMapping("/api/v1/admin/projects/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         projectService.delete(id);
         return ResponseEntity.noContent().build();

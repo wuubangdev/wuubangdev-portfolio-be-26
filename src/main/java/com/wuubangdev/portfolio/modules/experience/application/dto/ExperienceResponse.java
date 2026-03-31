@@ -5,6 +5,7 @@ import java.time.LocalDate;
 public record ExperienceResponse(
         Long id,
         String company,
+        String companyUrl,
         String role,
         String description,
         String logoUrl,

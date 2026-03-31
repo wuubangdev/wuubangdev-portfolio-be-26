@@ -7,6 +7,7 @@ import java.util.List;
 public record PostRequest(
         @NotBlank String title,
         @NotBlank String slug,
+        String category,
         String content,
         String summary,
         String coverImageUrl,

@@ -23,19 +23,19 @@ public class ExperienceController {
     }
 
     @PostMapping("/api/v1/admin/experiences")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ExperienceResponse> create(@RequestBody ExperienceRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(experienceService.create(request));
     }
 
     @PutMapping("/api/v1/admin/experiences/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ExperienceResponse> update(@PathVariable Long id, @RequestBody ExperienceRequest request) {
         return ResponseEntity.ok(experienceService.update(id, request));
     }
 
     @DeleteMapping("/api/v1/admin/experiences/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         experienceService.delete(id);
         return ResponseEntity.noContent().build();

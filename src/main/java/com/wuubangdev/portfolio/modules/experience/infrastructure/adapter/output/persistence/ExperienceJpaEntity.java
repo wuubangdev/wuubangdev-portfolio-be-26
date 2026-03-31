@@ -15,6 +15,7 @@ public class ExperienceJpaEntity extends BaseEntity {
     private Long id;
 
     private String company;
+    private String companyUrl;
     private String role;
 
     @Column(columnDefinition = "TEXT")

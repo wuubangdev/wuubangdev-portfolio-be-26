@@ -15,14 +15,14 @@ public class ExperiencePersistenceAdapter implements ExperienceRepositoryPort {
     private final ExperienceJpaRepository repo;
 
     private Experience toDomain(ExperienceJpaEntity e) {
-        return Experience.builder().id(e.getId()).company(e.getCompany()).role(e.getRole())
+        return Experience.builder().id(e.getId()).company(e.getCompany()).companyUrl(e.getCompanyUrl()).role(e.getRole())
                 .description(e.getDescription()).logoUrl(e.getLogoUrl()).startDate(e.getStartDate())
                 .endDate(e.getEndDate()).location(e.getLocation()).displayOrder(e.getDisplayOrder()).build();
     }
 
     private ExperienceJpaEntity toEntity(Experience exp) {
         ExperienceJpaEntity e = new ExperienceJpaEntity();
-        e.setId(exp.getId()); e.setCompany(exp.getCompany()); e.setRole(exp.getRole());
+        e.setId(exp.getId()); e.setCompany(exp.getCompany()); e.setCompanyUrl(exp.getCompanyUrl()); e.setRole(exp.getRole());
         e.setDescription(exp.getDescription()); e.setLogoUrl(exp.getLogoUrl());
         e.setStartDate(exp.getStartDate()); e.setEndDate(exp.getEndDate());
         e.setLocation(exp.getLocation()); e.setDisplayOrder(exp.getDisplayOrder());

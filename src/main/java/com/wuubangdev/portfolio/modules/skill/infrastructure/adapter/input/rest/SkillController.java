@@ -24,19 +24,19 @@ public class SkillController {
     }
 
     @PostMapping("/api/v1/admin/skills")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<SkillResponse> create(@Valid @RequestBody SkillRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(skillService.createSkill(request));
     }
 
     @PutMapping("/api/v1/admin/skills/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<SkillResponse> update(@PathVariable Long id, @Valid @RequestBody SkillRequest request) {
         return ResponseEntity.ok(skillService.updateSkill(id, request));
     }
 
     @DeleteMapping("/api/v1/admin/skills/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         skillService.deleteSkill(id);
         return ResponseEntity.noContent().build();

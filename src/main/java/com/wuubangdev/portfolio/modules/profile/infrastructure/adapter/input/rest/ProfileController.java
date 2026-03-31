@@ -20,7 +20,7 @@ public class ProfileController {
     }
 
     @PutMapping("/api/v1/admin/profile")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ProfileResponse> updateProfile(@RequestBody ProfileRequest request) {
         return ResponseEntity.ok(profileService.upsertProfile(request));
     }

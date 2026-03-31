@@ -6,7 +6,11 @@ import java.util.List;
 
 public record ProjectRequest(
         @NotBlank String title,
+        @NotBlank String slug,
+        String category,
+        List<String> tags,
         String description,
+        String content,
         List<String> techStack,
         String imageUrl,
         String projectUrl,
