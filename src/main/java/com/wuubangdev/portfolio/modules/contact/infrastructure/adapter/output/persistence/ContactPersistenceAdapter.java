@@ -1,5 +1,6 @@
 package com.wuubangdev.portfolio.modules.contact.infrastructure.adapter.output.persistence;
 
+import com.wuubangdev.portfolio.infrastructure.global.database.MongoSequenceService;
 import com.wuubangdev.portfolio.infrastructure.global.exception.ResourceNotFoundException;
 import com.wuubangdev.portfolio.modules.contact.domain.model.Contact;
 import com.wuubangdev.portfolio.modules.contact.domain.port.ContactRepositoryPort;
@@ -13,7 +14,10 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ContactPersistenceAdapter implements ContactRepositoryPort {
 
+    private static final String SEQUENCE_NAME = "contacts_sequence";
+
     private final ContactJpaRepository repo;
+    private final MongoSequenceService sequenceService;
 
     private Contact toDomain(ContactJpaEntity e) {
         return Contact.builder().id(e.getId()).name(e.getName()).email(e.getEmail())
@@ -27,7 +31,14 @@ public class ContactPersistenceAdapter implements ContactRepositoryPort {
         return e;
     }
 
-    @Override public Contact save(Contact c) { return toDomain(repo.save(toEntity(c))); }
+    @Override
+    public Contact save(Contact c) {
+        ContactJpaEntity entity = toEntity(c);
+        if (entity.getId() == null) {
+            entity.setId(sequenceService.nextId(SEQUENCE_NAME));
+        }
+        return toDomain(repo.save(entity));
+    }
     @Override public List<Contact> findAll() { return repo.findAll().stream().map(this::toDomain).toList(); }
     @Override public Optional<Contact> findById(Long id) { return repo.findById(id).map(this::toDomain); }
 

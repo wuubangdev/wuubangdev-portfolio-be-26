@@ -1,5 +1,6 @@
 package com.wuubangdev.portfolio.modules.experience.infrastructure.adapter.output.persistence;
 
+import com.wuubangdev.portfolio.infrastructure.global.database.MongoSequenceService;
 import com.wuubangdev.portfolio.modules.experience.domain.model.Experience;
 import com.wuubangdev.portfolio.modules.experience.domain.port.ExperienceRepositoryPort;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +13,10 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ExperiencePersistenceAdapter implements ExperienceRepositoryPort {
 
+    private static final String SEQUENCE_NAME = "experiences_sequence";
+
     private final ExperienceJpaRepository repo;
+    private final MongoSequenceService sequenceService;
 
     private Experience toDomain(ExperienceJpaEntity e) {
         return Experience.builder().id(e.getId()).company(e.getCompany()).companyUrl(e.getCompanyUrl()).role(e.getRole())
@@ -29,7 +33,14 @@ public class ExperiencePersistenceAdapter implements ExperienceRepositoryPort {
         return e;
     }
 
-    @Override public Experience save(Experience exp) { return toDomain(repo.save(toEntity(exp))); }
+    @Override
+    public Experience save(Experience exp) {
+        ExperienceJpaEntity entity = toEntity(exp);
+        if (entity.getId() == null) {
+            entity.setId(sequenceService.nextId(SEQUENCE_NAME));
+        }
+        return toDomain(repo.save(entity));
+    }
     @Override public List<Experience> findAll() { return repo.findAll().stream().map(this::toDomain).toList(); }
     @Override public Optional<Experience> findById(Long id) { return repo.findById(id).map(this::toDomain); }
     @Override public void deleteById(Long id) { repo.deleteById(id); }

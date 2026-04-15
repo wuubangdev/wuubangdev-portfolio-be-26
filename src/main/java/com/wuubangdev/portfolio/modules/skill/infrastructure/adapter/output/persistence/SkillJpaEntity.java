@@ -1,18 +1,12 @@
 package com.wuubangdev.portfolio.modules.skill.infrastructure.adapter.output.persistence;
 
 import com.wuubangdev.portfolio.infrastructure.persistence.base.BaseEntity;
-import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-@Entity
-@Table(name = "skills")
+@Document(collection = "skills")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor
 public class SkillJpaEntity extends BaseEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(nullable = false)
     private String name;
 
     private String category;

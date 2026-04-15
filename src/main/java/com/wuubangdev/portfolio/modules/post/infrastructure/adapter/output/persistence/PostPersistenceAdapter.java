@@ -1,5 +1,6 @@
 package com.wuubangdev.portfolio.modules.post.infrastructure.adapter.output.persistence;
 
+import com.wuubangdev.portfolio.infrastructure.global.database.MongoSequenceService;
 import com.wuubangdev.portfolio.modules.post.domain.model.Post;
 import com.wuubangdev.portfolio.modules.post.domain.port.PostRepositoryPort;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +13,10 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class PostPersistenceAdapter implements PostRepositoryPort {
 
+    private static final String SEQUENCE_NAME = "posts_sequence";
+
     private final PostJpaRepository repo;
+    private final MongoSequenceService sequenceService;
 
     private Post toDomain(PostJpaEntity e) {
         return Post.builder().id(e.getId()).title(e.getTitle()).slug(e.getSlug())
@@ -30,7 +34,14 @@ public class PostPersistenceAdapter implements PostRepositoryPort {
         return e;
     }
 
-    @Override public Post save(Post p) { return toDomain(repo.save(toEntity(p))); }
+    @Override
+    public Post save(Post p) {
+        PostJpaEntity entity = toEntity(p);
+        if (entity.getId() == null) {
+            entity.setId(sequenceService.nextId(SEQUENCE_NAME));
+        }
+        return toDomain(repo.save(entity));
+    }
     @Override public List<Post> findAllPublished() { return repo.findByPublishedTrue().stream().map(this::toDomain).toList(); }
     @Override public List<Post> findAll() { return repo.findAll().stream().map(this::toDomain).toList(); }
     @Override public Optional<Post> findById(Long id) { return repo.findById(id).map(this::toDomain); }

@@ -1,5 +1,6 @@
 package com.wuubangdev.portfolio.modules.project.infrastructure.adapter.output.persistence;
 
+import com.wuubangdev.portfolio.infrastructure.global.database.MongoSequenceService;
 import com.wuubangdev.portfolio.modules.project.domain.model.Project;
 import com.wuubangdev.portfolio.modules.project.domain.port.ProjectRepositoryPort;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +13,10 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ProjectPersistenceAdapter implements ProjectRepositoryPort {
 
+    private static final String SEQUENCE_NAME = "projects_sequence";
+
     private final ProjectJpaRepository repo;
+    private final MongoSequenceService sequenceService;
 
     private Project toDomain(ProjectJpaEntity e) {
         return Project.builder().id(e.getId()).title(e.getTitle()).slug(e.getSlug()).category(e.getCategory()).tags(e.getTags()).description(e.getDescription()).content(e.getContent())
@@ -30,7 +34,14 @@ public class ProjectPersistenceAdapter implements ProjectRepositoryPort {
         return e;
     }
 
-    @Override public Project save(Project p) { return toDomain(repo.save(toEntity(p))); }
+    @Override
+    public Project save(Project p) {
+        ProjectJpaEntity entity = toEntity(p);
+        if (entity.getId() == null) {
+            entity.setId(sequenceService.nextId(SEQUENCE_NAME));
+        }
+        return toDomain(repo.save(entity));
+    }
     @Override public List<Project> findAll() { return repo.findAll().stream().map(this::toDomain).toList(); }
     @Override public Optional<Project> findById(Long id) { return repo.findById(id).map(this::toDomain); }
     @Override public Optional<Project> findBySlug(String slug) { return repo.findBySlug(slug).map(this::toDomain); }

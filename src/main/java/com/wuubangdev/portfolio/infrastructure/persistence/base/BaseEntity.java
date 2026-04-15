@@ -1,27 +1,26 @@
 package com.wuubangdev.portfolio.infrastructure.persistence.base;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.EntityListeners;
-import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
-@MappedSuperclass // Đánh dấu đây là lớp cha, không tạo bảng riêng cho lớp này
-@EntityListeners(AuditingEntityListener.class) // Lắng nghe sự kiện để tự điền ngày tháng
 public abstract class BaseEntity {
 
+    @Id
+    private Long id;
+
     @CreatedDate
-    @Column(name = "created_at", updatable = false, nullable = false)
+    @Field("created_at")
     private LocalDateTime createdAt;
 
     @LastModifiedDate
-    @Column(name = "updated_at")
+    @Field("updated_at")
     private LocalDateTime updatedAt;
 }
