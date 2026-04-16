@@ -7,11 +7,16 @@ import com.wuubangdev.portfolio.modules.user.application.dto.UserResponse;
 import com.wuubangdev.portfolio.modules.user.application.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
+import java.util.Locale;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -19,11 +24,12 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService authService;
+    private final MessageSource messageSource;
 
     @PostMapping("/register")
     public ResponseEntity<String> register(@Valid @RequestBody RegisterRequest request) {
         authService.register(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully");
+        return ResponseEntity.status(HttpStatus.CREATED).body(getMessage("auth.register.success"));
     }
 
     @PostMapping("/login")
@@ -39,5 +45,23 @@ public class AuthController {
 
         UserResponse response = authService.getProfile(username);
         return ResponseEntity.ok(response);
+    }
+
+    private String getMessage(String key, Object... args) {
+        Locale locale = getCurrentLocale();
+        try {
+            return messageSource.getMessage(key, args, locale);
+        } catch (Exception e) {
+            return key; // Fallback to key if message not found
+        }
+    }
+
+    private Locale getCurrentLocale() {
+        try {
+            ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
+            return (Locale) attrs.getRequest().getSession().getAttribute("org.springframework.web.servlet.i18n.SessionLocaleResolver.LOCALE");
+        } catch (Exception e) {
+            return Locale.getDefault();
+        }
     }
 }
