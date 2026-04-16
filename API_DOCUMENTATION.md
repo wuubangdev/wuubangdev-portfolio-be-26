@@ -30,9 +30,14 @@ POST /api/v1/auth/register
 ```
 **Response (201):**
 ```json
-"User registered successfully"
+{
+  "code": 201,
+  "status": "created",
+  "message": "Đăng ký người dùng thành công",
+  "timestamp": "2024-04-16T10:30:00"
+}
 ```
-**i18n:** Supports Vietnamese and English messages
+**i18n:** Supports Vietnamese and English messages. Add `?lang=en` for English response.
 
 ---
 
@@ -50,9 +55,15 @@ POST /api/v1/auth/login
 **Response (200):**
 ```json
 {
-  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "tokenType": "Bearer",
-  "message": "Login successful"
+  "code": 200,
+  "status": "success",
+  "message": "Đăng nhập thành công",
+  "data": {
+    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "tokenType": "Bearer",
+    "message": "Login successful"
+  },
+  "timestamp": "2024-04-16T10:30:00"
 }
 ```
 
@@ -94,13 +105,19 @@ Authorization: Bearer {admin_token}
 ```
 **Response (200):**
 ```json
-[
-  {
-    "username": "john_doe",
-    "email": "john@example.com",
-    "roles": ["ROLE_USER"]
-  }
-]
+{
+  "code": 200,
+  "status": "success",
+  "message": "Users retrieved successfully",
+  "data": [
+    {
+      "username": "john_doe",
+      "email": "john@example.com",
+      "roles": ["ROLE_USER"]
+    }
+  ],
+  "timestamp": "2024-04-16T10:30:00"
+}
 ```
 
 ---
@@ -194,11 +211,25 @@ GET /api/v1/posts/paged?page=0&size=10
 **Response (200):**
 ```json
 {
-  "content": [...],
-  "page": 0,
-  "size": 10,
-  "totalElements": 25,
-  "totalPages": 3
+  "code": 200,
+  "status": "success",
+  "message": "Posts retrieved successfully",
+  "data": [
+    {
+      "id": 1,
+      "title": "My First Post",
+      ...
+    }
+  ],
+  "pagination": {
+    "page": 0,
+    "size": 10,
+    "total": 25,
+    "totalPages": 3,
+    "hasNext": true,
+    "hasPrevious": false
+  },
+  "timestamp": "2024-04-16T10:30:00"
 }
 ```
 
@@ -738,16 +769,31 @@ POST /api/v1/posts/{postId}/comments
 
 ## ⚠️ Error Responses
 
-All error responses follow this format:
+All error responses now follow the standardized ApiResponse format:
 
 ```json
 {
-  "timestamp": "2024-04-16T10:00:00",
-  "status": 404,
-  "error": "Not Found",
-  "message": "Post not found"
+  "code": 404,
+  "status": "error",
+  "message": "Post not found",
+  "error": {
+    "code": "NOT_FOUND",
+    "message": "Post not found",
+    "details": null
+  },
+  "timestamp": "2024-04-16T10:30:00"
 }
 ```
+
+### Standardized Response Format
+Every API response includes:
+- **code**: HTTP status code
+- **status**: Response status (success, created, updated, deleted, error)
+- **message**: Human-readable message (localized)
+- **data**: Response data (for successful responses)
+- **error**: Error details (for error responses)
+- **pagination**: Pagination info (for paginated responses)
+- **timestamp**: Response generation timestamp
 
 ### Common HTTP Status Codes:
 - `200 OK` - Success
@@ -813,25 +859,61 @@ Error messages, validation messages, and success messages are automatically tran
 
 ## 🔄 Pagination
 
-Endpoints supporting pagination use these query parameters:
-- `page` (default: 0) - Zero-indexed page number
-- `size` (default: 10) - Items per page
+Endpoints supporting pagination now return responses with pagination metadata:
 
-Response format:
+**Request:**
+```
+GET /api/v1/posts/paged?page=0&size=10
+```
+
+**Response (200):**
 ```json
 {
-  "content": [...],
-  "page": 0,
-  "size": 10,
-  "totalElements": 50,
-  "totalPages": 5
+  "code": 200,
+  "status": "success",
+  "message": "Posts retrieved successfully",
+  "data": [
+    { "id": 1, "title": "Post 1", ... },
+    ...
+  ],
+  "pagination": {
+    "page": 0,
+    "size": 10,
+    "total": 25,
+    "totalPages": 3,
+    "hasNext": true,
+    "hasPrevious": false
+  },
+  "timestamp": "2024-04-16T10:30:00"
 }
 ```
+
+**Pagination Fields:**
+- `page`: Current page number (0-indexed)
+- `size`: Items per page
+- `total`: Total number of items
+- `totalPages`: Total number of pages
+- `hasNext`: Whether there's a next page
+- `hasPrevious`: Whether there's a previous page
 
 ---
 
 ## 📞 Support
 
-For issues or questions, please refer to the backend documentation or contact the development team.
+For API response format details, refer to **API_RESPONSE_STANDARD.md**
+
+For i18n configuration, refer to **I18N_README.md**
+
+For issues or questions, please contact the development team.
 
 **Backend Repository**: https://github.com/wuubangdev/wuubangdev-portfolio-be-26
+
+---
+
+## 📚 Documentation Files
+
+- **API_DOCUMENTATION.md** - Complete API endpoint reference (this file)
+- **API_RESPONSE_STANDARD.md** - Response format, ResponseHelper usage, examples
+- **I18N_README.md** - Internationalization setup and usage
+- **I18N_README.md** - Internationalization configuration
+
