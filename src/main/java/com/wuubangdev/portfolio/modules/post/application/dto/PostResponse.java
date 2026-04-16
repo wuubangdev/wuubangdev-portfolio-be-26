@@ -1,5 +1,6 @@
 package com.wuubangdev.portfolio.modules.post.application.dto;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public record PostResponse(
@@ -11,5 +12,18 @@ public record PostResponse(
         String summary,
         String coverImageUrl,
         List<String> tags,
-        Boolean published
+        Boolean published,
+        // Thêm mới
+        String author,
+        String titleSeo,
+        String descriptionSeo,
+        String thumbnailSeo,
+        Integer likes,
+        Integer hearts,
+        Integer commentsCount,
+        Integer shares,
+        String status,
+        LocalDateTime createdAt,
+        Integer displayOrder,
+        Boolean isHidden
 ) {}

@@ -13,4 +13,11 @@ public interface PostRepositoryPort {
     Optional<Post> findBySlug(String slug);
     void deleteById(Long id);
     boolean existsBySlug(String slug);
+    List<Post> findRecentPosts(int limit);
+    List<Post> findRelatedPosts(String category, Long excludeId, int limit);
+    // Pagination
+    List<Post> findAllPublishedPaged(int page, int size);
+    long countAllPublished();
+    List<Post> findAllPaged(int page, int size);
+    long countAll();
 }

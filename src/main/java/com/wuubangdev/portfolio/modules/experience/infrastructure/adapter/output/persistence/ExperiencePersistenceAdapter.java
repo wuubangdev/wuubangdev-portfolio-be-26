@@ -21,7 +21,7 @@ public class ExperiencePersistenceAdapter implements ExperienceRepositoryPort {
     private Experience toDomain(ExperienceJpaEntity e) {
         return Experience.builder().id(e.getId()).company(e.getCompany()).companyUrl(e.getCompanyUrl()).role(e.getRole())
                 .description(e.getDescription()).logoUrl(e.getLogoUrl()).startDate(e.getStartDate())
-                .endDate(e.getEndDate()).location(e.getLocation()).displayOrder(e.getDisplayOrder()).build();
+                .endDate(e.getEndDate()).location(e.getLocation()).displayOrder(e.getDisplayOrder()).isHidden(e.getIsHidden()).build();
     }
 
     private ExperienceJpaEntity toEntity(Experience exp) {
@@ -29,7 +29,7 @@ public class ExperiencePersistenceAdapter implements ExperienceRepositoryPort {
         e.setId(exp.getId()); e.setCompany(exp.getCompany()); e.setCompanyUrl(exp.getCompanyUrl()); e.setRole(exp.getRole());
         e.setDescription(exp.getDescription()); e.setLogoUrl(exp.getLogoUrl());
         e.setStartDate(exp.getStartDate()); e.setEndDate(exp.getEndDate());
-        e.setLocation(exp.getLocation()); e.setDisplayOrder(exp.getDisplayOrder());
+        e.setLocation(exp.getLocation()); e.setDisplayOrder(exp.getDisplayOrder()); e.setIsHidden(exp.getIsHidden());
         return e;
     }
 

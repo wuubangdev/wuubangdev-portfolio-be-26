@@ -20,4 +20,5 @@ public class ExperienceJpaEntity extends BaseEntity {
     private LocalDate endDate;
     private String location;
     private Integer displayOrder;
+    private Boolean isHidden;
 }

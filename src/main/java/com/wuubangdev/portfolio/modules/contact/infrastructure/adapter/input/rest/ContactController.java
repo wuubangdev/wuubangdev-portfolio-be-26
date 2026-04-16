@@ -34,4 +34,16 @@ public class ContactController {
     public ResponseEntity<ContactResponse> markAsRead(@PathVariable Long id) {
         return ResponseEntity.ok(contactService.markAsRead(id));
     }
+
+    @PutMapping("/api/v1/admin/contacts/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ContactResponse> updateContact(@PathVariable Long id, @RequestBody ContactRequest request) {
+        return ResponseEntity.ok(contactService.update(id, request));
+    }
+
+    @PatchMapping("/api/v1/admin/contacts/{id}/status")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ContactResponse> changeStatus(@PathVariable Long id, @RequestParam String status) {
+        return ResponseEntity.ok(contactService.changeStatus(id, status));
+    }
 }

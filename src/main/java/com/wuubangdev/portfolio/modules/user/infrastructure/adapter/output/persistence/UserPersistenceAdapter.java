@@ -6,6 +6,7 @@ import com.wuubangdev.portfolio.modules.user.domain.port.UserRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -25,11 +26,25 @@ public class UserPersistenceAdapter implements UserRepositoryPort {
     }
 
     @Override
-    public void save(User user) {
+    public Optional<User> findById(Long id) {
+        return jpaRepository.findById(id)
+                .map(userMapper::toDomain);
+    }
+
+    @Override
+    public List<User> findAll() {
+        return jpaRepository.findAll().stream()
+                .map(userMapper::toDomain)
+                .toList();
+    }
+
+    @Override
+    public User save(User user) {
         UserJpaEntity entity = userMapper.toEntity(user);
         if (entity.getId() == null) {
             entity.setId(sequenceService.nextId(SEQUENCE_NAME));
         }
-        jpaRepository.save(entity);
+        UserJpaEntity savedEntity = jpaRepository.save(entity);
+        return userMapper.toDomain(savedEntity);
     }
 }

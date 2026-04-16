@@ -12,12 +12,22 @@ public class PostApplicationMapper {
         return Post.builder()
                 .title(request.title())
                 .slug(request.slug())
-                .category(request.category())
+                .category(request.category()) // tạm thời String
                 .content(request.content())
                 .summary(request.summary())
                 .coverImageUrl(request.coverImageUrl())
                 .tags(request.tags())
                 .published(Boolean.TRUE.equals(request.published()))
+                .author(request.author())
+                .titleSeo(request.titleSeo())
+                .descriptionSeo(request.descriptionSeo())
+                .thumbnailSeo(request.thumbnailSeo())
+                .likes(0)
+                .hearts(0)
+                .commentsCount(0)
+                .shares(0)
+                .displayOrder(request.displayOrder())
+                .isHidden(request.isHidden())
                 .build();
     }
 
@@ -30,6 +40,12 @@ public class PostApplicationMapper {
         post.setCoverImageUrl(request.coverImageUrl());
         post.setTags(request.tags());
         post.setPublished(request.published());
+        post.setAuthor(request.author());
+        post.setTitleSeo(request.titleSeo());
+        post.setDescriptionSeo(request.descriptionSeo());
+        post.setThumbnailSeo(request.thumbnailSeo());
+        post.setDisplayOrder(request.displayOrder());
+        post.setIsHidden(request.isHidden());
         return post;
     }
 
@@ -38,12 +54,24 @@ public class PostApplicationMapper {
                 post.getId(),
                 post.getTitle(),
                 post.getSlug(),
-                post.getCategory(),
+                post.getCategory(), // String
                 post.getContent(),
                 post.getSummary(),
                 post.getCoverImageUrl(),
                 post.getTags(),
-                post.getPublished()
+                post.getPublished(),
+                post.getAuthor(),
+                post.getTitleSeo(),
+                post.getDescriptionSeo(),
+                post.getThumbnailSeo(),
+                post.getLikes(),
+                post.getHearts(),
+                post.getCommentsCount(),
+                post.getShares(),
+                post.getStatus(),
+                post.getCreatedAt(),
+                post.getDisplayOrder(),
+                post.getIsHidden()
         );
     }
 }

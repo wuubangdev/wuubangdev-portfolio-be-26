@@ -12,5 +12,11 @@ public record PostRequest(
         String summary,
         String coverImageUrl,
         List<String> tags,
-        Boolean published
+        Boolean published,
+        String author,
+        String titleSeo,
+        String descriptionSeo,
+        String thumbnailSeo,
+        Integer displayOrder,
+        Boolean isHidden
 ) {}

@@ -10,4 +10,5 @@ public class Skill {
     private Integer level; // 1-100
     private String icon;
     private Integer displayOrder;
+    private Boolean isHidden;
 }

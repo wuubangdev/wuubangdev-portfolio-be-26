@@ -26,4 +26,14 @@ public class PostJpaEntity extends BaseEntity {
     private List<String> tags;
 
     private Boolean published;
+
+    // Thêm mới
+    private String author;
+    private String titleSeo;
+    private String descriptionSeo;
+    private String thumbnailSeo;
+    private Integer likes;
+    private Integer hearts;
+    private Integer commentsCount;
+    private Integer shares;
 }

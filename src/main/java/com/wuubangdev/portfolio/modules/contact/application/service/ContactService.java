@@ -9,4 +9,6 @@ public interface ContactService {
     ContactResponse submit(ContactRequest request);
     List<ContactResponse> getAll();
     ContactResponse markAsRead(Long id);
+    ContactResponse update(Long id, ContactRequest request);
+    ContactResponse changeStatus(Long id, String status);
 }

@@ -9,5 +9,6 @@ public record SkillRequest(
         @NotBlank String category,
         @Min(1) @Max(100) Integer level,
         String icon,
-        Integer displayOrder
+        Integer displayOrder,
+        Boolean isHidden
 ) {}

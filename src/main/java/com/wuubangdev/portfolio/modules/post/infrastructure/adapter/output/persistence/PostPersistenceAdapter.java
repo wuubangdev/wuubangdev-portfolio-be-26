@@ -22,7 +22,16 @@ public class PostPersistenceAdapter implements PostRepositoryPort {
         return Post.builder().id(e.getId()).title(e.getTitle()).slug(e.getSlug())
                 .category(e.getCategory())
                 .content(e.getContent()).summary(e.getSummary()).coverImageUrl(e.getCoverImageUrl())
-                .tags(e.getTags()).published(e.getPublished()).build();
+                .tags(e.getTags()).published(e.getPublished())
+                .author(e.getAuthor())
+                .titleSeo(e.getTitleSeo())
+                .descriptionSeo(e.getDescriptionSeo())
+                .thumbnailSeo(e.getThumbnailSeo())
+                .likes(e.getLikes())
+                .hearts(e.getHearts())
+                .commentsCount(e.getCommentsCount())
+                .shares(e.getShares())
+                .build();
     }
 
     private PostJpaEntity toEntity(Post p) {
@@ -31,6 +40,14 @@ public class PostPersistenceAdapter implements PostRepositoryPort {
         e.setCategory(p.getCategory());
         e.setContent(p.getContent()); e.setSummary(p.getSummary()); e.setCoverImageUrl(p.getCoverImageUrl());
         e.setTags(p.getTags()); e.setPublished(p.getPublished());
+        e.setAuthor(p.getAuthor());
+        e.setTitleSeo(p.getTitleSeo());
+        e.setDescriptionSeo(p.getDescriptionSeo());
+        e.setThumbnailSeo(p.getThumbnailSeo());
+        e.setLikes(p.getLikes());
+        e.setHearts(p.getHearts());
+        e.setCommentsCount(p.getCommentsCount());
+        e.setShares(p.getShares());
         return e;
     }
 
@@ -48,4 +65,10 @@ public class PostPersistenceAdapter implements PostRepositoryPort {
     @Override public Optional<Post> findBySlug(String slug) { return repo.findBySlug(slug).map(this::toDomain); }
     @Override public void deleteById(Long id) { repo.deleteById(id); }
     @Override public boolean existsBySlug(String slug) { return repo.existsBySlug(slug); }
+    @Override public List<Post> findRecentPosts(int limit) { return repo.findTop10ByPublishedTrueOrderByIdDesc().stream().limit(limit).map(this::toDomain).toList(); }
+    @Override public List<Post> findRelatedPosts(String category, Long excludeId, int limit) { return repo.findByCategoryAndPublishedTrueAndIdNot(category, excludeId, org.springframework.data.domain.PageRequest.of(0, limit)).stream().map(this::toDomain).toList(); }
+    @Override public List<Post> findAllPublishedPaged(int page, int size) { return repo.findByPublishedTrue(org.springframework.data.domain.PageRequest.of(page, size)).stream().map(this::toDomain).toList(); }
+    @Override public long countAllPublished() { return repo.countByPublishedTrue(); }
+    @Override public List<Post> findAllPaged(int page, int size) { return repo.findAll(org.springframework.data.domain.PageRequest.of(page, size)).stream().map(this::toDomain).toList(); }
+    @Override public long countAll() { return repo.count(); }
 }

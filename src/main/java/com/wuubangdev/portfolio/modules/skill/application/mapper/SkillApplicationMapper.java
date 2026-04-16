@@ -15,6 +15,7 @@ public class SkillApplicationMapper {
                 .level(request.level())
                 .icon(request.icon())
                 .displayOrder(request.displayOrder())
+                .isHidden(request.isHidden())
                 .build();
     }
 
@@ -24,6 +25,7 @@ public class SkillApplicationMapper {
         skill.setLevel(request.level());
         skill.setIcon(request.icon());
         skill.setDisplayOrder(request.displayOrder());
+        skill.setIsHidden(request.isHidden());
         return skill;
     }
 
@@ -34,7 +36,8 @@ public class SkillApplicationMapper {
                 skill.getCategory(),
                 skill.getLevel(),
                 skill.getIcon(),
-                skill.getDisplayOrder()
+                skill.getDisplayOrder(),
+                skill.getIsHidden()
         );
     }
 }

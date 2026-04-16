@@ -12,5 +12,6 @@ public record ExperienceResponse(
         LocalDate startDate,
         LocalDate endDate,
         String location,
-        Integer displayOrder
+        Integer displayOrder,
+        Boolean isHidden
 ) {}

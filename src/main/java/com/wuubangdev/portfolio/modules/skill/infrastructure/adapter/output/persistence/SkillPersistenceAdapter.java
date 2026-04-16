@@ -20,13 +20,13 @@ public class SkillPersistenceAdapter implements SkillRepositoryPort {
 
     private Skill toDomain(SkillJpaEntity e) {
         return Skill.builder().id(e.getId()).name(e.getName()).category(e.getCategory())
-                .level(e.getLevel()).icon(e.getIcon()).displayOrder(e.getDisplayOrder()).build();
+                .level(e.getLevel()).icon(e.getIcon()).displayOrder(e.getDisplayOrder()).isHidden(e.getIsHidden()).build();
     }
 
     private SkillJpaEntity toEntity(Skill s) {
         SkillJpaEntity e = new SkillJpaEntity();
         e.setId(s.getId()); e.setName(s.getName()); e.setCategory(s.getCategory());
-        e.setLevel(s.getLevel()); e.setIcon(s.getIcon()); e.setDisplayOrder(s.getDisplayOrder());
+        e.setLevel(s.getLevel()); e.setIcon(s.getIcon()); e.setDisplayOrder(s.getDisplayOrder()); e.setIsHidden(s.getIsHidden());
         return e;
     }
 

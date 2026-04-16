@@ -19,6 +19,7 @@ public class ExperienceApplicationMapper {
                 .endDate(request.endDate())
                 .location(request.location())
                 .displayOrder(request.displayOrder())
+                .isHidden(request.isHidden())
                 .build();
     }
 
@@ -32,6 +33,7 @@ public class ExperienceApplicationMapper {
         experience.setEndDate(request.endDate());
         experience.setLocation(request.location());
         experience.setDisplayOrder(request.displayOrder());
+        experience.setIsHidden(request.isHidden());
         return experience;
     }
 
@@ -46,7 +48,8 @@ public class ExperienceApplicationMapper {
                 experience.getStartDate(),
                 experience.getEndDate(),
                 experience.getLocation(),
-                experience.getDisplayOrder()
+                experience.getDisplayOrder(),
+                experience.getIsHidden()
         );
     }
 }

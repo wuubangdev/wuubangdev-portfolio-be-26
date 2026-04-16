@@ -13,4 +13,5 @@ public class SkillJpaEntity extends BaseEntity {
     private Integer level;
     private String icon;
     private Integer displayOrder;
+    private Boolean isHidden;
 }

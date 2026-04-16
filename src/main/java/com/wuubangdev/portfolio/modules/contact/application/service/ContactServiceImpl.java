@@ -1,11 +1,13 @@
 package com.wuubangdev.portfolio.modules.contact.application.service;
 
 import com.wuubangdev.portfolio.infrastructure.global.exception.ResourceNotFoundException;
+import com.wuubangdev.portfolio.infrastructure.global.mail.MailService;
 import com.wuubangdev.portfolio.modules.contact.application.dto.ContactRequest;
 import com.wuubangdev.portfolio.modules.contact.application.dto.ContactResponse;
 import com.wuubangdev.portfolio.modules.contact.domain.model.Contact;
 import com.wuubangdev.portfolio.modules.contact.domain.port.ContactRepositoryPort;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,13 +18,20 @@ import java.util.List;
 public class ContactServiceImpl implements ContactService {
 
     private final ContactRepositoryPort contactRepositoryPort;
+    private final MailService mailService;
+
+    @Value("${app.admin.email:admin@example.com}")
+    private String adminEmail;
 
     @Override @Transactional
     public ContactResponse submit(ContactRequest request) {
         Contact contact = Contact.builder()
                 .name(request.name()).email(request.email()).subject(request.subject())
                 .message(request.message()).read(false).build();
-        return toResponse(contactRepositoryPort.save(contact));
+        Contact saved = contactRepositoryPort.save(contact);
+        // Send email notification
+        mailService.sendContactNotification(adminEmail, request.name(), request.email(), request.subject(), request.message());
+        return toResponse(saved);
     }
 
     @Override
@@ -35,7 +44,26 @@ public class ContactServiceImpl implements ContactService {
         return toResponse(contactRepositoryPort.markAsRead(id));
     }
 
+    @Override @Transactional
+    public ContactResponse update(Long id, ContactRequest request) {
+        Contact contact = contactRepositoryPort.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Contact", id));
+        contact.setName(request.name());
+        contact.setEmail(request.email());
+        contact.setSubject(request.subject());
+        contact.setMessage(request.message());
+        return toResponse(contactRepositoryPort.save(contact));
+    }
+
+    @Override @Transactional
+    public ContactResponse changeStatus(Long id, String status) {
+        Contact contact = contactRepositoryPort.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Contact", id));
+        contact.setStatus(status);
+        return toResponse(contactRepositoryPort.save(contact));
+    }
+
     private ContactResponse toResponse(Contact c) {
-        return new ContactResponse(c.getId(), c.getName(), c.getEmail(), c.getSubject(), c.getMessage(), c.getRead());
+        return new ContactResponse(c.getId(), c.getName(), c.getEmail(), c.getSubject(), c.getMessage(), c.getRead(), c.getStatus(), c.getCreatedAt());
     }
 }

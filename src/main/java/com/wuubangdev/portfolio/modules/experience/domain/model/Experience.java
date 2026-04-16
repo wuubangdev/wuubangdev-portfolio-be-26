@@ -16,4 +16,5 @@ public class Experience {
     private LocalDate endDate; // null = hiện tại
     private String location;
     private Integer displayOrder;
+    private Boolean isHidden;
 }
