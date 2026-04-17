@@ -12,7 +12,9 @@ public record ProfileResponse(
         String location,
         String email,
         String phone,
-        List<SocialLinkDto> socialLinks
+        List<SocialLinkDto> socialLinks,
+        String locale,
+        Boolean translated
 ) {
     public record SocialLinkDto(String platform, String url, String icon) {}
 }

@@ -13,6 +13,8 @@ public record EducationResponse(
         String logoUrl,
         String location,
         Integer displayOrder,
-        Boolean isPublic
+        Boolean isPublic,
+        String locale,
+        Boolean translated
 ) {
 }

@@ -2,6 +2,7 @@ package com.wuubangdev.portfolio.modules.experience.infrastructure.adapter.input
 
 import com.wuubangdev.portfolio.modules.experience.application.dto.ExperienceRequest;
 import com.wuubangdev.portfolio.modules.experience.application.dto.ExperienceResponse;
+import com.wuubangdev.portfolio.modules.experience.application.dto.ExperienceTranslationRequest;
 import com.wuubangdev.portfolio.modules.experience.application.service.ExperienceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -32,6 +33,12 @@ public class ExperienceController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ExperienceResponse> update(@PathVariable Long id, @RequestBody ExperienceRequest request) {
         return ResponseEntity.ok(experienceService.update(id, request));
+    }
+
+    @PutMapping("/api/v1/admin/experiences/{id}/translations/{locale}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ExperienceResponse> upsertTranslation(@PathVariable Long id, @PathVariable String locale, @RequestBody ExperienceTranslationRequest request) {
+        return ResponseEntity.ok(experienceService.upsertTranslation(id, locale, request));
     }
 
     @DeleteMapping("/api/v1/admin/experiences/{id}")

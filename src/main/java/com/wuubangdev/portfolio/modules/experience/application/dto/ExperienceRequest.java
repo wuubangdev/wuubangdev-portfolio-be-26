@@ -1,6 +1,7 @@
 package com.wuubangdev.portfolio.modules.experience.application.dto;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public record ExperienceRequest(
         String company,
@@ -12,5 +13,6 @@ public record ExperienceRequest(
         LocalDate endDate,
         String location,
         Integer displayOrder,
-        Boolean isHidden
+        Boolean isHidden,
+        List<ExperienceTranslationRequest> translations
 ) {}

@@ -2,6 +2,7 @@ package com.wuubangdev.portfolio.modules.profile.infrastructure.adapter.input.re
 
 import com.wuubangdev.portfolio.modules.profile.application.dto.ProfileRequest;
 import com.wuubangdev.portfolio.modules.profile.application.dto.ProfileResponse;
+import com.wuubangdev.portfolio.modules.profile.application.dto.ProfileTranslationRequest;
 import com.wuubangdev.portfolio.modules.profile.application.service.ProfileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -23,5 +24,11 @@ public class ProfileController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ProfileResponse> updateProfile(@RequestBody ProfileRequest request) {
         return ResponseEntity.ok(profileService.upsertProfile(request));
+    }
+
+    @PutMapping("/api/v1/admin/profile/translations/{locale}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ProfileResponse> upsertTranslation(@PathVariable String locale, @RequestBody ProfileTranslationRequest request) {
+        return ResponseEntity.ok(profileService.upsertTranslation(locale, request));
     }
 }

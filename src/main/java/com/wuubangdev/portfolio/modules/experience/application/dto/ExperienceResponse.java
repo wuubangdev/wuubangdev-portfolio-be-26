@@ -13,5 +13,7 @@ public record ExperienceResponse(
         LocalDate endDate,
         String location,
         Integer displayOrder,
-        Boolean isHidden
+        Boolean isHidden,
+        String locale,
+        Boolean translated
 ) {}

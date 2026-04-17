@@ -3,6 +3,7 @@ package com.wuubangdev.portfolio.modules.post.application.mapper;
 import com.wuubangdev.portfolio.modules.post.application.dto.PostRequest;
 import com.wuubangdev.portfolio.modules.post.application.dto.PostEngagementResponse;
 import com.wuubangdev.portfolio.modules.post.application.dto.PostResponse;
+import com.wuubangdev.portfolio.modules.post.domain.model.PostTranslation;
 import com.wuubangdev.portfolio.modules.post.domain.model.Post;
 import org.springframework.stereotype.Component;
 
@@ -59,6 +60,14 @@ public class PostApplicationMapper {
     }
 
     public PostResponse toResponse(Post post) {
+        return toResponse(post, null, false);
+    }
+
+    public PostResponse toResponse(Post post, String locale) {
+        return toResponse(post, locale, false);
+    }
+
+    public PostResponse toResponse(Post post, String locale, boolean translated) {
         return new PostResponse(
                 post.getId(),
                 post.getTitle(),
@@ -83,7 +92,9 @@ public class PostApplicationMapper {
                 post.getStatus(),
                 post.getCreatedAt(),
                 post.getDisplayOrder(),
-                post.getIsHidden()
+                post.getIsHidden(),
+                locale,
+                translated
         );
     }
 
@@ -98,5 +109,39 @@ public class PostApplicationMapper {
 
     private String defaultIfBlank(String value, String fallback) {
         return value == null || value.isBlank() ? fallback : value;
+    }
+
+    public Post applyTranslation(Post post, PostTranslation translation) {
+        if (translation == null) {
+            return post;
+        }
+
+        Post translated = Post.builder()
+                .id(post.getId())
+                .title(translation.getTitle() != null ? translation.getTitle() : post.getTitle())
+                .slug(post.getSlug())
+                .category(post.getCategory())
+                .content(defaultIfBlank(translation.getContent(), post.getContent()))
+                .summary(defaultIfBlank(translation.getSummary(), post.getSummary()))
+                .coverImageUrl(post.getCoverImageUrl())
+                .tags(post.getTags())
+                .published(post.getPublished())
+                .author(post.getAuthor())
+                .titleSeo(defaultIfBlank(translation.getTitleSeo(), post.getTitleSeo()))
+                .descriptionSeo(defaultIfBlank(translation.getDescriptionSeo(), post.getDescriptionSeo()))
+                .thumbnailSeo(post.getThumbnailSeo())
+                .seoKeywords(translation.getSeoKeywords() != null ? translation.getSeoKeywords() : post.getSeoKeywords())
+                .canonicalUrl(post.getCanonicalUrl())
+                .indexable(post.getIndexable())
+                .likes(post.getLikes())
+                .hearts(post.getHearts())
+                .commentsCount(post.getCommentsCount())
+                .shares(post.getShares())
+                .status(post.getStatus())
+                .createdAt(post.getCreatedAt())
+                .displayOrder(post.getDisplayOrder())
+                .isHidden(post.getIsHidden())
+                .build();
+        return translated;
     }
 }

@@ -11,7 +11,8 @@ public record ProfileRequest(
         String location,
         String email,
         String phone,
-        List<SocialLinkDto> socialLinks
+        List<SocialLinkDto> socialLinks,
+        List<ProfileTranslationRequest> translations
 ) {
     public record SocialLinkDto(String platform, String url, String icon) {}
 }

@@ -3,6 +3,7 @@ package com.wuubangdev.portfolio.modules.project.application.service;
 import com.wuubangdev.portfolio.infrastructure.global.api.PageResponse;
 import com.wuubangdev.portfolio.modules.project.application.dto.ProjectRequest;
 import com.wuubangdev.portfolio.modules.project.application.dto.ProjectResponse;
+import com.wuubangdev.portfolio.modules.project.application.dto.ProjectTranslationRequest;
 
 import java.util.List;
 
@@ -16,4 +17,5 @@ public interface ProjectService {
     List<ProjectResponse> getRelatedProjects(String slug, int limit);
     ProjectResponse update(Long id, ProjectRequest request);
     void delete(Long id);
+    ProjectResponse upsertTranslation(Long id, String locale, ProjectTranslationRequest request);
 }

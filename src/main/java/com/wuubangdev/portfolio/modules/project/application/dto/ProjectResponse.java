@@ -24,5 +24,7 @@ public record ProjectResponse(
         List<String> seoKeywords,
         String canonicalUrl,
         Boolean indexable,
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        String locale,
+        Boolean translated
 ) {}

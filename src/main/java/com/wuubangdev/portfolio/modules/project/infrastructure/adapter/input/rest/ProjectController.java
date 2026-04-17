@@ -3,6 +3,7 @@ package com.wuubangdev.portfolio.modules.project.infrastructure.adapter.input.re
 import com.wuubangdev.portfolio.infrastructure.global.api.PageResponse;
 import com.wuubangdev.portfolio.modules.project.application.dto.ProjectRequest;
 import com.wuubangdev.portfolio.modules.project.application.dto.ProjectResponse;
+import com.wuubangdev.portfolio.modules.project.application.dto.ProjectTranslationRequest;
 import com.wuubangdev.portfolio.modules.project.application.service.ProjectService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -86,6 +87,12 @@ public class ProjectController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ProjectResponse> update(@PathVariable Long id, @Valid @RequestBody ProjectRequest request) {
         return ResponseEntity.ok(projectService.update(id, request));
+    }
+
+    @PutMapping("/api/v1/admin/projects/{id}/translations/{locale}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ProjectResponse> upsertTranslation(@PathVariable Long id, @PathVariable String locale, @RequestBody ProjectTranslationRequest request) {
+        return ResponseEntity.ok(projectService.upsertTranslation(id, locale, request));
     }
 
     @DeleteMapping("/api/v1/admin/projects/{id}")

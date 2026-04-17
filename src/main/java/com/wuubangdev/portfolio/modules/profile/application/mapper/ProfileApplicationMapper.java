@@ -3,6 +3,7 @@ package com.wuubangdev.portfolio.modules.profile.application.mapper;
 import com.wuubangdev.portfolio.modules.profile.application.dto.ProfileRequest;
 import com.wuubangdev.portfolio.modules.profile.application.dto.ProfileResponse;
 import com.wuubangdev.portfolio.modules.profile.domain.model.Profile;
+import com.wuubangdev.portfolio.modules.profile.domain.model.ProfileTranslation;
 import com.wuubangdev.portfolio.modules.profile.domain.model.SocialLink;
 import org.springframework.stereotype.Component;
 
@@ -13,6 +14,14 @@ import java.util.List;
 public class ProfileApplicationMapper {
 
     public ProfileResponse toResponse(Profile profile) {
+        return toResponse(profile, null, false);
+    }
+
+    public ProfileResponse toResponse(Profile profile, String locale) {
+        return toResponse(profile, locale, false);
+    }
+
+    public ProfileResponse toResponse(Profile profile, String locale, boolean translated) {
         List<ProfileResponse.SocialLinkDto> links = profile.getSocialLinks() != null
                 ? profile.getSocialLinks().stream()
                 .map(link -> new ProfileResponse.SocialLinkDto(link.getPlatform(), link.getUrl(), link.getIcon()))
@@ -29,7 +38,9 @@ public class ProfileApplicationMapper {
                 profile.getLocation(),
                 profile.getEmail(),
                 profile.getPhone(),
-                links
+                links,
+                locale,
+                translated
         );
     }
 
@@ -47,7 +58,30 @@ public class ProfileApplicationMapper {
     }
 
     public ProfileResponse defaultResponse() {
-        return new ProfileResponse(null, "wuubangdev", "Full Stack Developer", "", "", "", "", "", "", List.of());
+        return defaultResponse(null);
+    }
+
+    public ProfileResponse defaultResponse(String locale) {
+        return new ProfileResponse(null, "wuubangdev", "Full Stack Developer", "", "", "", "", "", "", List.of(), locale, false);
+    }
+
+    public Profile applyTranslation(Profile profile, ProfileTranslation translation) {
+        if (translation == null) {
+            return profile;
+        }
+
+        return Profile.builder()
+                .id(profile.getId())
+                .fullName(defaultIfBlank(translation.getFullName(), profile.getFullName()))
+                .title(defaultIfBlank(translation.getTitle(), profile.getTitle()))
+                .bio(defaultIfBlank(translation.getBio(), profile.getBio()))
+                .avatarUrl(profile.getAvatarUrl())
+                .resumeUrl(profile.getResumeUrl())
+                .location(defaultIfBlank(translation.getLocation(), profile.getLocation()))
+                .email(profile.getEmail())
+                .phone(profile.getPhone())
+                .socialLinks(profile.getSocialLinks())
+                .build();
     }
 
     private List<SocialLink> toSocialLinks(List<ProfileRequest.SocialLinkDto> socialLinks) {
@@ -60,7 +94,11 @@ public class ProfileApplicationMapper {
                         .platform(link.platform())
                         .url(link.url())
                         .icon(link.icon())
-                        .build())
+                .build())
                 .toList();
+    }
+
+    private String defaultIfBlank(String value, String fallback) {
+        return value == null || value.isBlank() ? fallback : value;
     }
 }

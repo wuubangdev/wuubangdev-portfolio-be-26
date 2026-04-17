@@ -5,12 +5,16 @@ import com.wuubangdev.portfolio.modules.project.application.dto.ProjectResponse;
 import com.wuubangdev.portfolio.modules.project.application.mapper.ProjectApplicationMapper;
 import com.wuubangdev.portfolio.modules.project.domain.model.Project;
 import com.wuubangdev.portfolio.modules.project.domain.port.ProjectRepositoryPort;
+import com.wuubangdev.portfolio.modules.project.domain.model.ProjectTranslation;
+import com.wuubangdev.portfolio.modules.project.domain.port.ProjectTranslationRepositoryPort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.domain.Pageable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -18,12 +22,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ProjectServiceImplTest {
 
     private InMemoryProjectRepository repository;
+    private InMemoryProjectTranslationRepository translationRepository;
     private ProjectServiceImpl service;
 
     @BeforeEach
     void setUp() {
         repository = new InMemoryProjectRepository();
-        service = new ProjectServiceImpl(repository, new ProjectApplicationMapper());
+        translationRepository = new InMemoryProjectTranslationRepository();
+        service = new ProjectServiceImpl(repository, translationRepository, new ProjectApplicationMapper());
+        LocaleContextHolder.setLocale(Locale.forLanguageTag("vi"));
     }
 
     @Test
@@ -55,6 +62,32 @@ class ProjectServiceImplTest {
 
         assertThat(response.id()).isEqualTo(3L);
         assertThat(response.slug()).isEqualTo("detail-project");
+        assertThat(response.translated()).isFalse();
+    }
+
+    @Test
+    void getByIdShouldReturnTranslatedContentForCurrentLocale() {
+        Project project = project(3L, "detail-project", "Backend", true);
+        project.setDescription("Mo ta");
+        project.setContent("Noi dung");
+        repository.projects.add(project);
+        translationRepository.translations.add(ProjectTranslation.builder()
+                .id(30L)
+                .projectId(3L)
+                .locale("en")
+                .title("Project detail")
+                .description("Description")
+                .content("Content")
+                .build());
+        LocaleContextHolder.setLocale(Locale.ENGLISH);
+
+        ProjectResponse response = service.getById(3L);
+
+        assertThat(response.title()).isEqualTo("Project detail");
+        assertThat(response.description()).isEqualTo("Description");
+        assertThat(response.content()).isEqualTo("Content");
+        assertThat(response.locale()).isEqualTo("en");
+        assertThat(response.translated()).isTrue();
     }
 
     @Test
@@ -174,6 +207,44 @@ class ProjectServiceImplTest {
         @Override
         public boolean existsBySlug(String slug) {
             return false;
+        }
+    }
+
+    private static class InMemoryProjectTranslationRepository implements ProjectTranslationRepositoryPort {
+        private final List<ProjectTranslation> translations = new ArrayList<>();
+
+        @Override
+        public ProjectTranslation save(ProjectTranslation translation) {
+            translations.removeIf(current ->
+                    current.getProjectId().equals(translation.getProjectId()) &&
+                            current.getLocale().equals(translation.getLocale()));
+            translations.add(translation);
+            return translation;
+        }
+
+        @Override
+        public List<ProjectTranslation> saveAll(List<ProjectTranslation> translations) {
+            translations.forEach(this::save);
+            return translations;
+        }
+
+        @Override
+        public Optional<ProjectTranslation> findByProjectIdAndLocale(Long projectId, String locale) {
+            return translations.stream()
+                    .filter(translation -> projectId.equals(translation.getProjectId()) && locale.equals(translation.getLocale()))
+                    .findFirst();
+        }
+
+        @Override
+        public List<ProjectTranslation> findByProjectIdInAndLocale(List<Long> projectIds, String locale) {
+            return translations.stream()
+                    .filter(translation -> projectIds.contains(translation.getProjectId()) && locale.equals(translation.getLocale()))
+                    .toList();
+        }
+
+        @Override
+        public void deleteByProjectId(Long projectId) {
+            translations.removeIf(translation -> projectId.equals(translation.getProjectId()));
         }
     }
 }

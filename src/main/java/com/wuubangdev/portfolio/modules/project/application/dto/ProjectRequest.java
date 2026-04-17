@@ -23,5 +23,6 @@ public record ProjectRequest(
         String thumbnailSeo,
         List<String> seoKeywords,
         String canonicalUrl,
-        Boolean indexable
+        Boolean indexable,
+        List<ProjectTranslationRequest> translations
 ) {}

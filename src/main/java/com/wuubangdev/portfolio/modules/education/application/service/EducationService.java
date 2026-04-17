@@ -2,6 +2,7 @@ package com.wuubangdev.portfolio.modules.education.application.service;
 
 import com.wuubangdev.portfolio.modules.education.application.dto.EducationRequest;
 import com.wuubangdev.portfolio.modules.education.application.dto.EducationResponse;
+import com.wuubangdev.portfolio.modules.education.application.dto.EducationTranslationRequest;
 
 import java.util.List;
 
@@ -13,4 +14,5 @@ public interface EducationService {
     void deleteEducation(Long id);
     EducationResponse setOrder(Long id, Integer order);
     EducationResponse togglePublic(Long id, Boolean isPublic);
+    EducationResponse upsertTranslation(Long id, String locale, EducationTranslationRequest request);
 }

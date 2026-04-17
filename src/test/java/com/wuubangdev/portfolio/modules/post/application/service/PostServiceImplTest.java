@@ -5,11 +5,15 @@ import com.wuubangdev.portfolio.modules.post.application.dto.PostEngagementRespo
 import com.wuubangdev.portfolio.modules.post.application.mapper.PostApplicationMapper;
 import com.wuubangdev.portfolio.modules.post.domain.model.Post;
 import com.wuubangdev.portfolio.modules.post.domain.port.PostRepositoryPort;
+import com.wuubangdev.portfolio.modules.post.domain.model.PostTranslation;
+import com.wuubangdev.portfolio.modules.post.domain.port.PostTranslationRepositoryPort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.context.support.StaticMessageSource;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -19,12 +23,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 class PostServiceImplTest {
 
     private InMemoryPostRepository postRepositoryPort;
+    private InMemoryPostTranslationRepository postTranslationRepositoryPort;
     private PostServiceImpl postService;
 
     @BeforeEach
     void setUp() {
         postRepositoryPort = new InMemoryPostRepository();
-        postService = new PostServiceImpl(postRepositoryPort, new PostApplicationMapper(), messageSource());
+        postTranslationRepositoryPort = new InMemoryPostTranslationRepository();
+        postService = new PostServiceImpl(postRepositoryPort, postTranslationRepositoryPort, new PostApplicationMapper(), messageSource());
+        LocaleContextHolder.setLocale(Locale.forLanguageTag("vi"));
     }
 
     @Test
@@ -62,6 +69,32 @@ class PostServiceImplTest {
 
         assertThat(postRepositoryPort.savedPost.getShares()).isEqualTo(1);
         assertThat(response.shares()).isEqualTo(1);
+    }
+
+    @Test
+    void getBySlugShouldReturnTranslatedContentForCurrentLocale() {
+        Post post = publishedPost();
+        post.setTitle("Xin chao");
+        post.setSummary("Tom tat");
+        post.setContent("Noi dung");
+        postRepositoryPort.post = post;
+        postTranslationRepositoryPort.translations.add(PostTranslation.builder()
+                .id(10L)
+                .postId(1L)
+                .locale("en")
+                .title("Hello")
+                .summary("Summary")
+                .content("Content")
+                .build());
+        LocaleContextHolder.setLocale(Locale.ENGLISH);
+
+        var response = postService.getBySlug("hello-world");
+
+        assertThat(response.title()).isEqualTo("Hello");
+        assertThat(response.summary()).isEqualTo("Summary");
+        assertThat(response.content()).isEqualTo("Content");
+        assertThat(response.locale()).isEqualTo("en");
+        assertThat(response.translated()).isTrue();
     }
 
     private MessageSource messageSource() {
@@ -147,6 +180,44 @@ class PostServiceImplTest {
         @Override
         public long countAll() {
             return 0;
+        }
+    }
+
+    private static class InMemoryPostTranslationRepository implements PostTranslationRepositoryPort {
+        private final List<PostTranslation> translations = new ArrayList<>();
+
+        @Override
+        public PostTranslation save(PostTranslation translation) {
+            translations.removeIf(current ->
+                    current.getPostId().equals(translation.getPostId()) &&
+                            current.getLocale().equals(translation.getLocale()));
+            translations.add(translation);
+            return translation;
+        }
+
+        @Override
+        public List<PostTranslation> saveAll(List<PostTranslation> translations) {
+            translations.forEach(this::save);
+            return translations;
+        }
+
+        @Override
+        public Optional<PostTranslation> findByPostIdAndLocale(Long postId, String locale) {
+            return translations.stream()
+                    .filter(translation -> postId.equals(translation.getPostId()) && locale.equals(translation.getLocale()))
+                    .findFirst();
+        }
+
+        @Override
+        public List<PostTranslation> findByPostIdInAndLocale(List<Long> postIds, String locale) {
+            return translations.stream()
+                    .filter(translation -> postIds.contains(translation.getPostId()) && locale.equals(translation.getLocale()))
+                    .toList();
+        }
+
+        @Override
+        public void deleteByPostId(Long postId) {
+            translations.removeIf(translation -> postId.equals(translation.getPostId()));
         }
     }
 }

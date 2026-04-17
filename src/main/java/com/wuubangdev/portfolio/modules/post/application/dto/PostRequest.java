@@ -21,5 +21,6 @@ public record PostRequest(
         String canonicalUrl,
         Boolean indexable,
         Integer displayOrder,
-        Boolean isHidden
+        Boolean isHidden,
+        List<PostTranslationRequest> translations
 ) {}

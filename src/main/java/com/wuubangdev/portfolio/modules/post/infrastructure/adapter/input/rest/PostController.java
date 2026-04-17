@@ -4,6 +4,7 @@ import com.wuubangdev.portfolio.infrastructure.global.api.PageResponse;
 import com.wuubangdev.portfolio.modules.post.application.dto.PostEngagementResponse;
 import com.wuubangdev.portfolio.modules.post.application.dto.PostRequest;
 import com.wuubangdev.portfolio.modules.post.application.dto.PostResponse;
+import com.wuubangdev.portfolio.modules.post.application.dto.PostTranslationRequest;
 import com.wuubangdev.portfolio.modules.post.application.service.PostService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -90,6 +91,12 @@ public class PostController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<PostResponse> update(@PathVariable Long id, @Valid @RequestBody PostRequest request) {
         return ResponseEntity.ok(postService.update(id, request));
+    }
+
+    @PutMapping("/api/v1/admin/posts/{id}/translations/{locale}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<PostResponse> upsertTranslation(@PathVariable Long id, @PathVariable String locale, @RequestBody PostTranslationRequest request) {
+        return ResponseEntity.ok(postService.upsertTranslation(id, locale, request));
     }
 
     @DeleteMapping("/api/v1/admin/posts/{id}")

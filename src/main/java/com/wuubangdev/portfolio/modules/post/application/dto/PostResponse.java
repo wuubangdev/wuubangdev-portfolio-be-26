@@ -28,5 +28,7 @@ public record PostResponse(
         String status,
         LocalDateTime createdAt,
         Integer displayOrder,
-        Boolean isHidden
+        Boolean isHidden,
+        String locale,
+        Boolean translated
 ) {}

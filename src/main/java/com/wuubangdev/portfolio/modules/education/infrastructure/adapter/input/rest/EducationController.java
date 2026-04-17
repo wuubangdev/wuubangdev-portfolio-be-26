@@ -2,6 +2,7 @@ package com.wuubangdev.portfolio.modules.education.infrastructure.adapter.input.
 
 import com.wuubangdev.portfolio.modules.education.application.dto.EducationRequest;
 import com.wuubangdev.portfolio.modules.education.application.dto.EducationResponse;
+import com.wuubangdev.portfolio.modules.education.application.dto.EducationTranslationRequest;
 import com.wuubangdev.portfolio.modules.education.application.service.EducationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -38,6 +39,12 @@ public class EducationController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<EducationResponse> updateEducation(@PathVariable Long id, @RequestBody EducationRequest request) {
         return ResponseEntity.ok(educationService.updateEducation(id, request));
+    }
+
+    @PutMapping("/{id}/translations/{locale}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<EducationResponse> upsertTranslation(@PathVariable Long id, @PathVariable String locale, @RequestBody EducationTranslationRequest request) {
+        return ResponseEntity.ok(educationService.upsertTranslation(id, locale, request));
     }
 
     @DeleteMapping("/{id}")
