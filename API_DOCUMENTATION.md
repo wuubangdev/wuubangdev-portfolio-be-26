@@ -1,26 +1,58 @@
-# API Documentation - Wuubangdev Portfolio Backend
+# API Documentation
+
+Tài liệu này mô tả contract thực tế của backend hiện tại để frontend có thể gọi API trực tiếp.
 
 ## Base URL
-```
+
+```text
 http://localhost:8080
 ```
 
-## Language Support
-All endpoints support internationalization. Switch language using query parameter:
-```
-?lang=en  # English
-?lang=vi  # Vietnamese (default)
+## Auth Header
+
+Với các endpoint admin hoặc endpoint yêu cầu đăng nhập:
+
+```http
+Authorization: Bearer <access_token>
 ```
 
----
+## i18n và Multilingual Content
 
-## 🔐 Authentication Endpoints
+- Mọi endpoint đều có thể nhận `?lang=vi` hoặc `?lang=en`
+- Với các entity đã hỗ trợ translation (`post`, `project`, `experience`, `education`, `profile`):
+  - `locale`: locale backend đang trả về
+  - `translated`: `true` nếu có bản dịch thật cho locale hiện tại
+  - `translated=false` nếu backend đang fallback về nội dung gốc
 
-### 1. Register User
+Ví dụ:
+
+```http
+GET /api/v1/posts/hello-world?lang=en
+GET /api/v1/projects/my-project?lang=vi
 ```
-POST /api/v1/auth/register
+
+## Pagination Shape
+
+Các endpoint phân trang trả về:
+
+```json
+{
+  "content": [],
+  "page": 0,
+  "size": 10,
+  "totalElements": 25,
+  "totalPages": 3,
+  "first": true,
+  "last": false
+}
 ```
-**Request Body:**
+
+## 1. Auth
+
+### `POST /api/v1/auth/register`
+
+Request:
+
 ```json
 {
   "username": "john_doe",
@@ -28,892 +60,767 @@ POST /api/v1/auth/register
   "password": "password123"
 }
 ```
-**Response (201):**
+
+Response `201`:
+
 ```json
-{
-  "code": 201,
-  "status": "created",
-  "message": "Đăng ký người dùng thành công",
-  "timestamp": "2024-04-16T10:30:00"
-}
+"Đăng ký người dùng thành công"
 ```
-**i18n:** Supports Vietnamese and English messages. Add `?lang=en` for English response.
 
----
+### `POST /api/v1/auth/login`
 
-### 2. Login
-```
-POST /api/v1/auth/login
-```
-**Request Body:**
+Request:
+
 ```json
 {
   "username": "john_doe",
   "password": "password123"
 }
 ```
-**Response (200):**
+
+Response `200`:
+
 ```json
 {
-  "code": 200,
-  "status": "success",
-  "message": "Đăng nhập thành công",
-  "data": {
-    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-    "tokenType": "Bearer",
-    "message": "Login successful"
-  },
-  "timestamp": "2024-04-16T10:30:00"
+  "accessToken": "jwt-access-token",
+  "refreshToken": "jwt-refresh-token",
+  "tokenType": "Bearer",
+  "expiresIn": 86400000,
+  "refreshExpiresIn": 604800000,
+  "message": "Login successful"
 }
 ```
 
-**Headers for subsequent requests:**
-```
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+### `POST /api/v1/auth/refresh`
+
+Request:
+
+```json
+{
+  "refreshToken": "jwt-refresh-token"
+}
 ```
 
----
+Response: cùng shape với `login`
 
-### 3. Get Current User Profile
+### `POST /api/v1/auth/social/google`
+### `POST /api/v1/auth/social/github`
+
+Request:
+
+```json
+{
+  "accessToken": "provider-access-token"
+}
 ```
-GET /api/v1/auth/me
+
+Response: cùng shape với `login`
+
+### `GET /api/v1/auth/activate?token=...`
+
+Response `200`:
+
+```json
+"Kích hoạt tài khoản thành công"
 ```
-**Headers:**
+
+### `POST /api/v1/auth/forgot-password`
+
+Request:
+
+```json
+{
+  "email": "john@example.com"
+}
 ```
-Authorization: Bearer {token}
+
+Response `200`:
+
+```json
+"Đã gửi email đặt lại mật khẩu"
 ```
-**Response (200):**
+
+### `POST /api/v1/auth/reset-password`
+
+Request:
+
+```json
+{
+  "token": "reset-token",
+  "newPassword": "newPassword123"
+}
+```
+
+Response `200`:
+
+```json
+"Đặt lại mật khẩu thành công"
+```
+
+### `GET /api/v1/auth/me`
+
+Response:
+
 ```json
 {
   "username": "john_doe",
   "email": "john@example.com",
-  "roles": ["ROLE_USER", "ROLE_ADMIN"]
+  "roles": ["ROLE_USER"],
+  "enabled": true,
+  "userType": "BASIC"
 }
 ```
 
----
+`userType` có thể là:
+- `BASIC`
+- `GOOGLE`
+- `GITHUB`
 
-## 👥 User Management Endpoints (Admin Only)
+## 2. Profile
 
-### 1. Get All Users
-```
-GET /api/v1/admin/users
-```
-**Headers:**
-```
-Authorization: Bearer {admin_token}
-```
-**Response (200):**
+### `GET /api/v1/profile`
+
+Response:
+
 ```json
 {
-  "code": 200,
-  "status": "success",
-  "message": "Users retrieved successfully",
-  "data": [
+  "id": 1,
+  "fullName": "Wuu Bang Dev",
+  "title": "Full Stack Developer",
+  "bio": "Short bio",
+  "avatarUrl": "https://...",
+  "resumeUrl": "https://...",
+  "location": "Da Nang",
+  "email": "me@example.com",
+  "phone": "0123456789",
+  "socialLinks": [
     {
-      "username": "john_doe",
-      "email": "john@example.com",
-      "roles": ["ROLE_USER"]
+      "platform": "github",
+      "url": "https://github.com/...",
+      "icon": "github"
     }
   ],
-  "timestamp": "2024-04-16T10:30:00"
+  "locale": "en",
+  "translated": true
 }
 ```
 
----
+### `PUT /api/v1/admin/profile`
 
-### 2. Get User by ID
-```
-GET /api/v1/admin/users/{id}
-```
-**Parameters:**
-- `id` (required): User ID
+Request:
 
-**Response (200):**
 ```json
 {
-  "username": "john_doe",
-  "email": "john@example.com",
-  "roles": ["ROLE_USER"]
-}
-```
-
----
-
-### 3. Update User Roles
-```
-PATCH /api/v1/admin/users/{id}/roles
-```
-**Headers:**
-```
-Authorization: Bearer {admin_token}
-Content-Type: application/json
-```
-**Request Body:**
-```json
-["ROLE_ADMIN", "ROLE_MODERATOR"]
-```
-**Response (200):**
-```json
-{
-  "username": "john_doe",
-  "email": "john@example.com",
-  "roles": ["ROLE_ADMIN", "ROLE_MODERATOR"]
-}
-```
-
----
-
-## 📝 Post/Blog Endpoints
-
-### 1. Get Published Posts
-```
-GET /api/v1/posts
-```
-**Response (200):**
-```json
-[
-  {
-    "id": 1,
-    "title": "My First Post",
-    "slug": "my-first-post",
-    "category": "Technology",
-    "content": "# Content here...",
-    "summary": "Brief summary",
-    "coverImageUrl": "https://example.com/image.jpg",
-    "tags": ["javascript", "react"],
-    "published": true,
-    "author": "John Doe",
-    "titleSeo": "SEO Title",
-    "descriptionSeo": "SEO Description",
-    "likes": 10,
-    "hearts": 5,
-    "commentsCount": 2,
-    "shares": 1,
-    "status": "APPROVED",
-    "createdAt": "2024-04-16T10:00:00",
-    "displayOrder": 1,
-    "isHidden": false
-  }
-]
-```
-
----
-
-### 2. Get Published Posts (Paginated)
-```
-GET /api/v1/posts/paged?page=0&size=10
-```
-**Parameters:**
-- `page` (optional, default: 0): Page number
-- `size` (optional, default: 10): Page size
-
-**Response (200):**
-```json
-{
-  "code": 200,
-  "status": "success",
-  "message": "Posts retrieved successfully",
-  "data": [
+  "fullName": "Wuu Bang Dev",
+  "title": "Full Stack Developer",
+  "bio": "Vietnamese bio",
+  "avatarUrl": "https://...",
+  "resumeUrl": "https://...",
+  "location": "Da Nang",
+  "email": "me@example.com",
+  "phone": "0123456789",
+  "socialLinks": [
     {
-      "id": 1,
-      "title": "My First Post",
-      ...
+      "platform": "github",
+      "url": "https://github.com/...",
+      "icon": "github"
     }
   ],
-  "pagination": {
-    "page": 0,
-    "size": 10,
-    "total": 25,
-    "totalPages": 3,
-    "hasNext": true,
-    "hasPrevious": false
-  },
-  "timestamp": "2024-04-16T10:30:00"
+  "translations": [
+    {
+      "locale": "en",
+      "fullName": "Wuu Bang Dev",
+      "title": "Full Stack Developer",
+      "bio": "English bio",
+      "location": "Da Nang"
+    }
+  ]
 }
 ```
 
----
+### `PUT /api/v1/admin/profile/translations/{locale}`
 
-### 3. Get Post by Slug
-```
-GET /api/v1/posts/{slug}
-```
-**Parameters:**
-- `slug` (required): Post slug
+Ví dụ `PUT /api/v1/admin/profile/translations/en`
 
-**Response (200):**
+Request:
+
+```json
+{
+  "fullName": "Wuu Bang Dev",
+  "title": "Full Stack Developer",
+  "bio": "English bio",
+  "location": "Da Nang"
+}
+```
+
+## 3. Social
+
+### `GET /api/v1/social`
+### `PUT /api/v1/admin/social`
+
+Request/response:
+
+```json
+{
+  "id": 1,
+  "facebook": "https://facebook.com/...",
+  "github": "https://github.com/...",
+  "linkedin": "https://linkedin.com/in/...",
+  "zalo": "https://zalo.me/...",
+  "telegram": "https://t.me/...",
+  "gmail": "me@example.com",
+  "phone": "0123456789",
+  "address": "Da Nang, Vietnam",
+  "addressGgMapLink": "https://maps.google.com/..."
+}
+```
+
+Khi `PUT`, chỉ cần gửi cùng shape nhưng không cần `id`.
+
+## 4. Setting
+
+### `GET /api/v1/setting`
+### `PUT /api/v1/admin/setting`
+
+Request/response:
+
+```json
+{
+  "id": 1,
+  "logo": "https://...",
+  "thumbnailImageSeo": "https://...",
+  "titleSeo": "Portfolio SEO title",
+  "descriptionSeo": "Portfolio SEO description"
+}
+```
+
+## 5. Skills
+
+### `GET /api/v1/skills`
+### `POST /api/v1/admin/skills`
+### `PUT /api/v1/admin/skills/{id}`
+### `DELETE /api/v1/admin/skills/{id}`
+
+Request:
+
+```json
+{
+  "name": "Java",
+  "category": "Backend",
+  "level": 90,
+  "icon": "devicon-java-plain",
+  "displayOrder": 1,
+  "isHidden": false
+}
+```
+
+Response:
+
+```json
+{
+  "id": 1,
+  "name": "Java",
+  "category": "Backend",
+  "level": 90,
+  "icon": "devicon-java-plain",
+  "displayOrder": 1,
+  "isHidden": false
+}
+```
+
+## 6. Experiences
+
+### `GET /api/v1/experiences`
+
+Response item:
+
+```json
+{
+  "id": 1,
+  "company": "Cong ty A",
+  "companyUrl": "https://company-a.com",
+  "role": "Backend Developer",
+  "description": "Mo ta",
+  "logoUrl": "https://...",
+  "startDate": "2023-01-01",
+  "endDate": null,
+  "location": "Da Nang",
+  "displayOrder": 1,
+  "isHidden": false,
+  "locale": "en",
+  "translated": true
+}
+```
+
+### `POST /api/v1/admin/experiences`
+### `PUT /api/v1/admin/experiences/{id}`
+
+Request:
+
+```json
+{
+  "company": "Cong ty A",
+  "companyUrl": "https://company-a.com",
+  "role": "Backend Developer",
+  "description": "Noi dung goc",
+  "logoUrl": "https://...",
+  "startDate": "2023-01-01",
+  "endDate": null,
+  "location": "Da Nang",
+  "displayOrder": 1,
+  "isHidden": false,
+  "translations": [
+    {
+      "locale": "en",
+      "company": "Company A",
+      "role": "Backend Developer",
+      "description": "English content",
+      "location": "Da Nang"
+    }
+  ]
+}
+```
+
+### `PUT /api/v1/admin/experiences/{id}/translations/{locale}`
+
+Request:
+
+```json
+{
+  "company": "Company A",
+  "role": "Backend Developer",
+  "description": "English content",
+  "location": "Da Nang"
+}
+```
+
+## 7. Educations
+
+Lưu ý: admin route của `education` hiện vẫn nằm trên prefix `/api/v1/educations/...`, không phải `/api/v1/admin/educations/...`.
+
+### `GET /api/v1/educations`
+### `GET /api/v1/educations/{id}`
+
+Response item:
+
+```json
+{
+  "id": 1,
+  "institution": "FPT University",
+  "degree": "Bachelor",
+  "fieldOfStudy": "Software Engineering",
+  "startDate": "2019-01-01",
+  "endDate": "2023-01-01",
+  "description": "Mo ta",
+  "logoUrl": "https://...",
+  "location": "Da Nang",
+  "displayOrder": 1,
+  "isPublic": true,
+  "locale": "en",
+  "translated": true
+}
+```
+
+### `POST /api/v1/educations`
+### `PUT /api/v1/educations/{id}`
+
+Request:
+
+```json
+{
+  "institution": "FPT University",
+  "degree": "Bachelor",
+  "fieldOfStudy": "Software Engineering",
+  "startDate": "2019-01-01",
+  "endDate": "2023-01-01",
+  "description": "Noi dung goc",
+  "logoUrl": "https://...",
+  "location": "Da Nang",
+  "displayOrder": 1,
+  "isPublic": true,
+  "translations": [
+    {
+      "locale": "en",
+      "institution": "FPT University",
+      "degree": "Bachelor",
+      "fieldOfStudy": "Software Engineering",
+      "description": "English content",
+      "location": "Da Nang"
+    }
+  ]
+}
+```
+
+### `PUT /api/v1/educations/{id}/translations/{locale}`
+
+Request:
+
+```json
+{
+  "institution": "FPT University",
+  "degree": "Bachelor",
+  "fieldOfStudy": "Software Engineering",
+  "description": "English content",
+  "location": "Da Nang"
+}
+```
+
+### `PUT /api/v1/educations/{id}/order?order=1`
+### `PUT /api/v1/educations/{id}/public?isPublic=true`
+
+## 8. Languages
+
+### `GET /api/v1/languages`
+### `GET /api/v1/languages/{id}`
+### `POST /api/v1/languages`
+### `PUT /api/v1/languages/{id}`
+### `DELETE /api/v1/languages/{id}`
+
+Request/response item:
+
+```json
+{
+  "id": 1,
+  "code": "en",
+  "name": "English",
+  "isDefault": false
+}
+```
+
+## 9. Categories
+
+### `GET /api/v1/categories`
+### `GET /api/v1/categories/{id}`
+### `POST /api/v1/categories`
+### `PUT /api/v1/categories/{id}`
+### `DELETE /api/v1/categories/{id}`
+
+Request/response item:
+
+```json
+{
+  "id": 1,
+  "name": "Technology",
+  "slug": "technology",
+  "description": "Technology posts"
+}
+```
+
+## 10. Comments
+
+### `GET /api/v1/comments/post/{postId}`
+### `POST /api/v1/comments`
+### `DELETE /api/v1/comments/{id}`
+
+Request:
+
+```json
+{
+  "postId": 1,
+  "author": "Guest User",
+  "content": "Great article",
+  "parentId": null
+}
+```
+
+Response:
+
+```json
+{
+  "id": 1,
+  "postId": 1,
+  "author": "Guest User",
+  "content": "Great article",
+  "createdAt": "2026-04-17T15:00:00",
+  "parentId": null
+}
+```
+
+## 11. Posts
+
+### `GET /api/v1/posts`
+### `GET /api/v1/posts/paged?page=0&size=10`
+### `GET /api/v1/posts/{slug}`
+### `GET /api/v1/posts/recent?limit=5`
+### `GET /api/v1/posts/{id}/related?limit=5`
+
+Response item:
+
 ```json
 {
   "id": 1,
   "title": "My First Post",
-  ...
-}
-```
-
----
-
-### 4. Get Recent Posts
-```
-GET /api/v1/posts/recent?limit=5
-```
-**Parameters:**
-- `limit` (optional, default: 5): Number of recent posts
-
----
-
-### 5. Get Related Posts
-```
-GET /api/v1/posts/{id}/related?limit=5
-```
-**Parameters:**
-- `id` (required): Post ID
-- `limit` (optional, default: 5): Number of related posts
-
----
-
-### 6. Get All Posts (Admin)
-```
-GET /api/v1/admin/posts
-```
-**Headers:**
-```
-Authorization: Bearer {admin_token}
-```
-
----
-
-### 7. Create Post (Admin)
-```
-POST /api/v1/admin/posts
-```
-**Headers:**
-```
-Authorization: Bearer {admin_token}
-Content-Type: application/json
-```
-**Request Body:**
-```json
-{
-  "title": "New Post",
-  "slug": "new-post",
+  "slug": "my-first-post",
   "category": "Technology",
-  "content": "# Post content...",
+  "content": "Post content",
   "summary": "Brief summary",
-  "coverImageUrl": "https://example.com/image.jpg",
-  "tags": ["javascript"],
+  "coverImageUrl": "https://...",
+  "tags": ["spring", "java"],
   "published": true,
-  "author": "John Doe",
-  "titleSeo": "SEO Title",
-  "descriptionSeo": "SEO Description",
-  "thumbnailSeo": "https://example.com/thumb.jpg",
+  "author": "Wuu Bang Dev",
+  "titleSeo": "SEO title",
+  "descriptionSeo": "SEO description",
+  "thumbnailSeo": "https://...",
+  "seoKeywords": ["spring", "java"],
+  "canonicalUrl": "https://...",
+  "indexable": true,
+  "likes": 10,
+  "hearts": 0,
+  "commentsCount": 0,
+  "shares": 2,
+  "status": "PUBLISHED",
+  "createdAt": "2026-04-17T15:00:00",
   "displayOrder": 1,
-  "isHidden": false
-}
-```
-**Response (201):** Full post object
-
----
-
-### 8. Update Post (Admin)
-```
-PUT /api/v1/admin/posts/{id}
-```
-**Headers:**
-```
-Authorization: Bearer {admin_token}
-Content-Type: application/json
-```
-**Request Body:** Same as create post
-
----
-
-### 9. Delete Post (Admin)
-```
-DELETE /api/v1/admin/posts/{id}
-```
-**Headers:**
-```
-Authorization: Bearer {admin_token}
-```
-**Response (204):** No content
-
----
-
-### 10. Change Post Status (Admin) ⭐ NEW
-```
-PATCH /api/v1/admin/posts/{id}/status?status=APPROVED
-```
-**Headers:**
-```
-Authorization: Bearer {admin_token}
-```
-**Parameters:**
-- `id` (required): Post ID
-- `status` (required): New status (PENDING, APPROVED, REJECTED)
-
-**Response (200):** Updated post object
-
----
-
-## 🏆 Skill Endpoints
-
-### 1. Get All Skills
-```
-GET /api/v1/skills
-```
-**Response (200):**
-```json
-[
-  {
-    "id": 1,
-    "name": "JavaScript",
-    "category": "Programming",
-    "level": 90,
-    "icon": "js-icon.png",
-    "displayOrder": 1,
-    "isHidden": false
-  }
-]
-```
-
----
-
-### 2. Create Skill (Admin)
-```
-POST /api/v1/admin/skills
-```
-**Headers:**
-```
-Authorization: Bearer {admin_token}
-Content-Type: application/json
-```
-**Request Body:**
-```json
-{
-  "name": "JavaScript",
-  "category": "Programming",
-  "level": 90,
-  "icon": "js-icon.png",
-  "displayOrder": 1,
-  "isHidden": false
+  "isHidden": false,
+  "locale": "en",
+  "translated": true
 }
 ```
 
----
+### `POST /api/v1/posts/{slug}/like`
+### `DELETE /api/v1/posts/{slug}/like`
+### `POST /api/v1/posts/{slug}/share`
 
-### 3. Update Skill (Admin)
-```
-PUT /api/v1/admin/skills/{id}
-```
+Response:
 
----
-
-### 4. Delete Skill (Admin)
-```
-DELETE /api/v1/admin/skills/{id}
-```
-
----
-
-## 💼 Experience Endpoints
-
-### 1. Get All Experiences
-```
-GET /api/v1/experiences
-```
-**Response (200):**
-```json
-[
-  {
-    "id": 1,
-    "company": "Tech Corp",
-    "companyUrl": "https://techcorp.com",
-    "role": "Senior Developer",
-    "description": "Working on amazing projects",
-    "logoUrl": "https://example.com/logo.jpg",
-    "startDate": "2020-01-15",
-    "endDate": null,
-    "location": "Ho Chi Minh City",
-    "displayOrder": 1,
-    "isHidden": false
-  }
-]
-```
-
----
-
-### 2. Create Experience (Admin)
-```
-POST /api/v1/admin/experiences
-```
-**Request Body:**
 ```json
 {
-  "company": "Tech Corp",
-  "companyUrl": "https://techcorp.com",
-  "role": "Senior Developer",
-  "description": "Working on amazing projects",
-  "logoUrl": "https://example.com/logo.jpg",
-  "startDate": "2020-01-15",
-  "endDate": null,
-  "location": "Ho Chi Minh City",
-  "displayOrder": 1,
-  "isHidden": false
+  "postId": 1,
+  "slug": "my-first-post",
+  "likes": 11,
+  "shares": 2
 }
 ```
 
----
+### `POST /api/v1/admin/posts`
+### `PUT /api/v1/admin/posts/{id}`
 
-### 3. Update Experience (Admin)
-```
-PUT /api/v1/admin/experiences/{id}
-```
+Request:
 
----
-
-### 4. Delete Experience (Admin)
-```
-DELETE /api/v1/admin/experiences/{id}
-```
-
----
-
-## 📚 Education Endpoints
-
-### 1. Get All Educations
-```
-GET /api/v1/educations
-```
-
----
-
-### 2. Get Education by ID
-```
-GET /api/v1/educations/{id}
-```
-
----
-
-### 3. Create Education (Admin)
-```
-POST /api/v1/educations
-```
-**Request Body:**
 ```json
 {
-  "institution": "University of Technology",
-  "degree": "Bachelor",
-  "fieldOfStudy": "Computer Science",
-  "startDate": "2018-09-01",
-  "endDate": "2022-06-01",
-  "description": "Great experience",
-  "location": "Ho Chi Minh City",
+  "title": "Bai viet goc",
+  "slug": "bai-viet-goc",
+  "category": "Technology",
+  "content": "Noi dung goc",
+  "summary": "Tom tat",
+  "coverImageUrl": "https://...",
+  "tags": ["spring", "java"],
+  "published": true,
+  "author": "Wuu Bang Dev",
+  "titleSeo": "SEO title",
+  "descriptionSeo": "SEO description",
+  "thumbnailSeo": "https://...",
+  "seoKeywords": ["spring", "java"],
+  "canonicalUrl": "https://...",
+  "indexable": true,
   "displayOrder": 1,
-  "isPublic": true
+  "isHidden": false,
+  "translations": [
+    {
+      "locale": "en",
+      "title": "English title",
+      "content": "English content",
+      "summary": "English summary",
+      "titleSeo": "English SEO title",
+      "descriptionSeo": "English SEO description",
+      "seoKeywords": ["spring", "java"]
+    }
+  ]
 }
 ```
 
----
+### `PUT /api/v1/admin/posts/{id}/translations/{locale}`
 
-### 4. Update Education (Admin)
-```
-PUT /api/v1/educations/{id}
-```
+Request:
 
----
-
-### 5. Delete Education (Admin)
-```
-DELETE /api/v1/educations/{id}
-```
-
----
-
-### 6. Set Education Display Order (Admin)
-```
-PUT /api/v1/educations/{id}/order?order=1
-```
-
----
-
-### 7. Toggle Education Visibility (Admin)
-```
-PUT /api/v1/educations/{id}/public?isPublic=true
-```
-
----
-
-## 🚀 Project Endpoints
-
-### 1. Get All Projects
-```
-GET /api/v1/projects
-```
-**Response (200):**
-```json
-[
-  {
-    "id": 1,
-    "title": "Amazing Project",
-    "slug": "amazing-project",
-    "category": "Web Development",
-    "tags": ["react", "node.js"],
-    "description": "Project description",
-    "content": "Detailed content",
-    "techStack": ["React", "Node.js", "MongoDB"],
-    "imageUrl": "https://example.com/image.jpg",
-    "projectUrl": "https://project.com",
-    "githubUrl": "https://github.com/...",
-    "groupName": "group1",
-    "featured": true,
-    "displayOrder": 1
-  }
-]
-```
-
----
-
-### 2. Get Project by Slug
-```
-GET /api/v1/projects/{slug}
-```
-
----
-
-### 3. Create Project (Admin)
-```
-POST /api/v1/admin/projects
-```
-**Request Body:**
 ```json
 {
-  "title": "Amazing Project",
-  "slug": "amazing-project",
-  "category": "Web Development",
-  "tags": ["react", "node.js"],
-  "description": "Project description",
-  "content": "Detailed content",
-  "techStack": ["React", "Node.js", "MongoDB"],
-  "imageUrl": "https://example.com/image.jpg",
-  "projectUrl": "https://project.com",
+  "title": "English title",
+  "content": "English content",
+  "summary": "English summary",
+  "titleSeo": "English SEO title",
+  "descriptionSeo": "English SEO description",
+  "seoKeywords": ["spring", "java"]
+}
+```
+
+### `PATCH /api/v1/admin/posts/{id}/status?status=PUBLISHED`
+### `DELETE /api/v1/admin/posts/{id}`
+
+## 12. Projects
+
+### `GET /api/v1/projects`
+
+Query params:
+- `category`
+- `featured`
+
+### `GET /api/v1/projects/paged?page=0&size=10`
+
+Query params:
+- `category`
+- `featured`
+
+### `GET /api/v1/projects/featured`
+### `GET /api/v1/projects/{slug}`
+### `GET /api/v1/projects/{slug}/related?limit=3`
+
+Response item:
+
+```json
+{
+  "id": 1,
+  "title": "Portfolio Backend",
+  "slug": "portfolio-backend",
+  "category": "Backend",
+  "tags": ["spring", "mongodb"],
+  "description": "Short description",
+  "content": "Full content",
+  "techStack": ["Java", "Spring Boot", "MongoDB"],
+  "imageUrl": "https://...",
+  "projectUrl": "https://...",
   "githubUrl": "https://github.com/...",
-  "groupName": "group1",
+  "groupName": "Personal",
   "featured": true,
-  "displayOrder": 1
+  "displayOrder": 1,
+  "titleSeo": "SEO title",
+  "descriptionSeo": "SEO description",
+  "thumbnailSeo": "https://...",
+  "seoKeywords": ["spring", "mongodb"],
+  "canonicalUrl": "https://...",
+  "indexable": true,
+  "createdAt": "2026-04-17T15:00:00",
+  "locale": "en",
+  "translated": true
 }
 ```
 
----
+### `POST /api/v1/admin/projects`
+### `PUT /api/v1/admin/projects/{id}`
 
-### 4. Update Project (Admin)
-```
-PUT /api/v1/admin/projects/{id}
+Request:
+
+```json
+{
+  "title": "Du an goc",
+  "slug": "du-an-goc",
+  "category": "Backend",
+  "tags": ["spring", "mongodb"],
+  "description": "Mo ta goc",
+  "content": "Noi dung goc",
+  "techStack": ["Java", "Spring Boot", "MongoDB"],
+  "imageUrl": "https://...",
+  "projectUrl": "https://...",
+  "githubUrl": "https://github.com/...",
+  "groupName": "Personal",
+  "featured": true,
+  "displayOrder": 1,
+  "titleSeo": "SEO title",
+  "descriptionSeo": "SEO description",
+  "thumbnailSeo": "https://...",
+  "seoKeywords": ["spring", "mongodb"],
+  "canonicalUrl": "https://...",
+  "indexable": true,
+  "translations": [
+    {
+      "locale": "en",
+      "title": "English project title",
+      "description": "English description",
+      "content": "English content",
+      "titleSeo": "English SEO title",
+      "descriptionSeo": "English SEO description",
+      "seoKeywords": ["spring", "mongodb"]
+    }
+  ]
+}
 ```
 
----
+### `PUT /api/v1/admin/projects/{id}/translations/{locale}`
 
-### 5. Delete Project (Admin)
-```
-DELETE /api/v1/admin/projects/{id}
+Request:
+
+```json
+{
+  "title": "English project title",
+  "description": "English description",
+  "content": "English content",
+  "titleSeo": "English SEO title",
+  "descriptionSeo": "English SEO description",
+  "seoKeywords": ["spring", "mongodb"]
+}
 ```
 
----
+### `DELETE /api/v1/admin/projects/{id}`
 
-## 📞 Contact Endpoints
+## 13. Contact
 
-### 1. Submit Contact Form
-```
-POST /api/v1/contact
-```
-**Request Body:**
+### `POST /api/v1/contact`
+
+Request:
+
 ```json
 {
   "name": "John Doe",
   "email": "john@example.com",
-  "subject": "Inquiry",
-  "message": "Hello, I have a question..."
+  "subject": "Need collaboration",
+  "message": "Hello, I want to contact you."
 }
 ```
-**Response (201):**
+
+Response:
+
 ```json
 {
   "id": 1,
   "name": "John Doe",
   "email": "john@example.com",
-  "subject": "Inquiry",
-  "message": "Hello, I have a question...",
+  "subject": "Need collaboration",
+  "message": "Hello, I want to contact you.",
   "read": false,
-  "status": "PENDING",
-  "createdAt": "2024-04-16T10:00:00"
+  "status": "NEW",
+  "createdAt": "2026-04-17T15:00:00"
 }
 ```
 
----
+### Admin
 
-### 2. Get All Contacts (Admin)
-```
-GET /api/v1/admin/contacts
-```
+- `GET /api/v1/admin/contacts`
+- `PATCH /api/v1/admin/contacts/{id}/read`
+- `PUT /api/v1/admin/contacts/{id}`
+- `PATCH /api/v1/admin/contacts/{id}/status?status=PROCESSING`
 
----
+## 14. Admin Users
 
-### 3. Mark Contact as Read (Admin)
-```
-PATCH /api/v1/admin/contacts/{id}/read
-```
+### `GET /api/v1/admin/users`
+### `GET /api/v1/admin/users/{id}`
+### `PATCH /api/v1/admin/users/{id}/roles`
 
----
+Update roles request:
 
-### 4. Update Contact (Admin)
-```
-PUT /api/v1/admin/contacts/{id}
-```
-
----
-
-### 5. Change Contact Status (Admin)
-```
-PATCH /api/v1/admin/contacts/{id}/status?status=APPROVED
-```
-**Parameters:**
-- `status`: PENDING, APPROVED, REJECTED
-
----
-
-## 🌐 Language Endpoints
-
-### 1. Get All Languages
-```
-GET /api/v1/languages
-```
-
----
-
-### 2. Get Language by ID
-```
-GET /api/v1/languages/{id}
-```
-
----
-
-### 3. Create Language (Admin)
-```
-POST /api/v1/languages
-```
-**Request Body:**
 ```json
-{
-  "name": "English",
-  "code": "en",
-  "level": 90,
-  "displayOrder": 1
-}
+["ROLE_ADMIN", "ROLE_USER"]
 ```
 
----
-
-### 4. Update Language (Admin)
-```
-PUT /api/v1/languages/{id}
-```
-
----
-
-### 5. Delete Language (Admin)
-```
-DELETE /api/v1/languages/{id}
-```
-
----
-
-## 🏷️ Category Endpoints (Post Categories)
-
-### 1. Get All Categories
-```
-GET /api/v1/post/categories
-```
-
----
-
-### 2. Create Category (Admin)
-```
-POST /api/v1/admin/post/categories
-```
-**Request Body:**
-```json
-{
-  "name": "Technology",
-  "slug": "technology",
-  "description": "Posts about technology"
-}
-```
-
----
-
-## 💬 Comment Endpoints
-
-### 1. Add Comment
-```
-POST /api/v1/posts/{postId}/comments
-```
-**Request Body:**
-```json
-{
-  "content": "Great post!",
-  "authorName": "John Doe"
-}
-```
-
----
-
-## ⚠️ Error Responses
-
-All error responses now follow the standardized ApiResponse format:
+Response:
 
 ```json
 {
-  "code": 404,
-  "status": "error",
-  "message": "Post not found",
-  "error": {
-    "code": "NOT_FOUND",
-    "message": "Post not found",
-    "details": null
-  },
-  "timestamp": "2024-04-16T10:30:00"
+  "username": "john_doe",
+  "email": "john@example.com",
+  "roles": ["ROLE_USER"],
+  "enabled": true,
+  "userType": "BASIC"
 }
 ```
 
-### Standardized Response Format
-Every API response includes:
-- **code**: HTTP status code
-- **status**: Response status (success, created, updated, deleted, error)
-- **message**: Human-readable message (localized)
-- **data**: Response data (for successful responses)
-- **error**: Error details (for error responses)
-- **pagination**: Pagination info (for paginated responses)
-- **timestamp**: Response generation timestamp
+## FE Integration Notes
 
-### Common HTTP Status Codes:
-- `200 OK` - Success
-- `201 Created` - Resource created
-- `204 No Content` - Success (no body)
-- `400 Bad Request` - Invalid input
-- `401 Unauthorized` - Missing/invalid token
-- `403 Forbidden` - Insufficient permissions
-- `404 Not Found` - Resource not found
-- `500 Internal Server Error` - Server error
-
----
-
-## 🔒 Security
-
-### Authentication
-- Use JWT token from login endpoint
-- Include in Authorization header: `Authorization: Bearer {token}`
-- Token expires in 24 hours (configurable)
-
-### Authorization
-- Roles: `ROLE_USER`, `ROLE_ADMIN`, `ROLE_MODERATOR`
-- Admin endpoints require `ROLE_ADMIN`
-- Check `@PreAuthorize("hasRole('ADMIN')")` annotations
-
----
-
-## 🌍 Internationalization
-
-All responses support multiple languages. Switch using `?lang` parameter:
-
-```
-GET /api/v1/posts?lang=en      # English
-GET /api/v1/posts?lang=vi      # Vietnamese
-```
-
-### Supported Languages:
-- `en` - English
-- `vi` - Vietnamese (default)
-
-Error messages, validation messages, and success messages are automatically translated.
-
----
-
-## 📋 Request/Response Examples
-
-### Example: Create and Publish a Post
-```
-1. POST /api/v1/admin/posts
-   {
-     "title": "New Article",
-     "slug": "new-article",
-     ...
-   }
-   → Returns post with status: "PENDING"
-
-2. PATCH /api/v1/admin/posts/{id}/status?status=APPROVED
-   → Changes status to "APPROVED"
-   → Post becomes visible to public via GET /api/v1/posts
-```
-
----
-
-## 🔄 Pagination
-
-Endpoints supporting pagination now return responses with pagination metadata:
-
-**Request:**
-```
-GET /api/v1/posts/paged?page=0&size=10
-```
-
-**Response (200):**
-```json
-{
-  "code": 200,
-  "status": "success",
-  "message": "Posts retrieved successfully",
-  "data": [
-    { "id": 1, "title": "Post 1", ... },
-    ...
-  ],
-  "pagination": {
-    "page": 0,
-    "size": 10,
-    "total": 25,
-    "totalPages": 3,
-    "hasNext": true,
-    "hasPrevious": false
-  },
-  "timestamp": "2024-04-16T10:30:00"
-}
-```
-
-**Pagination Fields:**
-- `page`: Current page number (0-indexed)
-- `size`: Items per page
-- `total`: Total number of items
-- `totalPages`: Total number of pages
-- `hasNext`: Whether there's a next page
-- `hasPrevious`: Whether there's a previous page
-
----
-
-## 📞 Support
-
-For API response format details, refer to **API_RESPONSE_STANDARD.md**
-
-For i18n configuration, refer to **I18N_README.md**
-
-For issues or questions, please contact the development team.
-
-**Backend Repository**: https://github.com/wuubangdev/wuubangdev-portfolio-be-26
-
----
-
-## 📚 Documentation Files
-
-- **API_DOCUMENTATION.md** - Complete API endpoint reference (this file)
-- **API_RESPONSE_STANDARD.md** - Response format, ResponseHelper usage, examples
-- **I18N_README.md** - Internationalization setup and usage
-- **I18N_README.md** - Internationalization configuration
-
+- Dùng `?lang=en` hoặc `?lang=vi` ở các màn public để lấy đúng bản dịch
+- FE nên đọc:
+  - `locale` để biết backend đang trả locale nào
+  - `translated` để biết bản dịch có thật hay chỉ fallback
+- Với admin CMS:
+  - có thể lưu nội dung gốc bằng payload chính
+  - có thể sửa từng locale bằng endpoint `PUT .../translations/{locale}`
+- `education` và `category` hiện dùng route admin ngay trên prefix public nhưng vẫn được bảo vệ bằng `@PreAuthorize`

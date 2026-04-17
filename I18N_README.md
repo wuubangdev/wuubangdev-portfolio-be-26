@@ -1,47 +1,125 @@
-# Internationalization (i18n) Implementation
+# I18N Guide
 
-## Tổng quan
-Hệ thống hỗ trợ đa ngôn ngữ với Spring Boot i18n. Mặc định sử dụng tiếng Việt, hỗ trợ chuyển đổi sang tiếng Anh.
+Repo hiện hỗ trợ i18n cho:
 
-## Cấu hình
-- **File cấu hình**: `I18nConfig.java`
-- **Message files**: 
-  - `messages.properties` (mặc định)
-  - `messages_vi.properties` (tiếng Việt)
-  - `messages_en.properties` (tiếng Anh)
-- **Default locale**: `vi` (tiếng Việt)
+- message text của auth/contact và một số business message
+- dữ liệu content của entity qua `translation document`
 
-## Cách sử dụng
+## 1. Message i18n
 
-### 1. Thay đổi ngôn ngữ
-```
-GET /api/v1/some-endpoint?lang=en
-GET /api/v1/some-endpoint?lang=vi
-```
+Các file message:
 
-### 2. Trong code
-```java
-@Autowired
-private MessageSource messageSource;
+- `src/main/resources/messages.properties`
+- `src/main/resources/messages_vi.properties`
+- `src/main/resources/messages_en.properties`
 
-// Lấy message theo locale hiện tại
-String message = messageSource.getMessage("key", args, locale);
+Locale mặc định:
+
+```text
+vi
 ```
 
-### 3. Các key message chính
-- `auth.login.success` - Đăng nhập thành công
-- `auth.register.success` - Đăng ký thành công
-- `post.not.found` - Không tìm thấy bài viết
-- `user.not.found` - Không tìm thấy người dùng
-- `error.internal` - Lỗi máy chủ nội bộ
+Chuyển locale bằng query param:
 
-## API Endpoints hỗ trợ i18n
-- Tất cả error responses
-- Authentication responses
-- User management responses
-- Post management responses
+```http
+GET /api/v1/profile?lang=en
+GET /api/v1/posts/my-post?lang=vi
+```
 
-## Thêm ngôn ngữ mới
-1. Tạo file `messages_{locale}.properties`
-2. Dịch tất cả các key từ file mặc định
-3. Restart application
+## 2. Entity Content i18n
+
+Hiện đã hỗ trợ cho:
+
+- `post`
+- `project`
+- `experience`
+- `education`
+- `profile`
+
+Mô hình dùng:
+
+- 1 document chính chứa dữ liệu gốc
+- 1 collection translation riêng cho từng entity
+- khóa duy nhất theo `entityId + locale`
+
+Ví dụ:
+
+- `post_translations`
+- `project_translations`
+- `experience_translations`
+- `education_translations`
+- `profile_translations`
+
+## 3. Response chuẩn cho entity có translation
+
+Ví dụ:
+
+```json
+{
+  "title": "English title",
+  "locale": "en",
+  "translated": true
+}
+```
+
+Ý nghĩa:
+
+- `locale`: locale backend đang resolve
+- `translated=true`: có translation thật
+- `translated=false`: đang fallback về document gốc
+
+## 4. Cách FE nên dùng
+
+Public pages:
+
+- luôn gửi `?lang=vi` hoặc `?lang=en`
+- dùng `translated` để biết có nên hiển thị badge/fallback logic riêng hay không
+
+Admin CMS:
+
+- lưu nội dung gốc bằng payload chính
+- sửa từng bản dịch bằng endpoint riêng:
+  - `PUT /api/v1/admin/posts/{id}/translations/{locale}`
+  - `PUT /api/v1/admin/projects/{id}/translations/{locale}`
+  - `PUT /api/v1/admin/experiences/{id}/translations/{locale}`
+  - `PUT /api/v1/educations/{id}/translations/{locale}`
+  - `PUT /api/v1/admin/profile/translations/{locale}`
+
+## 5. Translation Payload
+
+Ví dụ với `post`:
+
+```json
+{
+  "title": "English title",
+  "summary": "English summary",
+  "content": "English content",
+  "titleSeo": "English SEO title",
+  "descriptionSeo": "English SEO description",
+  "seoKeywords": ["spring", "java"]
+}
+```
+
+Ví dụ với `profile`:
+
+```json
+{
+  "fullName": "Wuu Bang Dev",
+  "title": "Full Stack Developer",
+  "bio": "English bio",
+  "location": "Da Nang"
+}
+```
+
+## 6. Fallback Rule
+
+Nếu request `?lang=en` nhưng chưa có translation:
+
+- backend vẫn trả dữ liệu gốc
+- `locale` vẫn là `en`
+- `translated` sẽ là `false`
+
+Điều này giúp FE biết:
+
+- user đang xem locale nào
+- dữ liệu có phải bản dịch thật hay không
