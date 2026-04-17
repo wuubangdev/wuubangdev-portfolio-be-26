@@ -17,5 +17,11 @@ public record ProjectRequest(
         String githubUrl,
         String groupName,
         Boolean featured,
-        Integer displayOrder
+        Integer displayOrder,
+        String titleSeo,
+        String descriptionSeo,
+        String thumbnailSeo,
+        List<String> seoKeywords,
+        String canonicalUrl,
+        Boolean indexable
 ) {}

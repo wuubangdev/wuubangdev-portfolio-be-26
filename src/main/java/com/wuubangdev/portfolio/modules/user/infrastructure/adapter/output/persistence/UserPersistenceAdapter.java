@@ -26,6 +26,30 @@ public class UserPersistenceAdapter implements UserRepositoryPort {
     }
 
     @Override
+    public Optional<User> findByEmail(String email) {
+        return jpaRepository.findByEmail(email)
+                .map(userMapper::toDomain);
+    }
+
+    @Override
+    public Optional<User> findByActivationToken(String activationToken) {
+        return jpaRepository.findByActivationToken(activationToken)
+                .map(userMapper::toDomain);
+    }
+
+    @Override
+    public Optional<User> findByResetPasswordToken(String resetPasswordToken) {
+        return jpaRepository.findByResetPasswordToken(resetPasswordToken)
+                .map(userMapper::toDomain);
+    }
+
+    @Override
+    public Optional<User> findByRefreshToken(String refreshToken) {
+        return jpaRepository.findByRefreshToken(refreshToken)
+                .map(userMapper::toDomain);
+    }
+
+    @Override
     public Optional<User> findById(Long id) {
         return jpaRepository.findById(id)
                 .map(userMapper::toDomain);
@@ -46,5 +70,10 @@ public class UserPersistenceAdapter implements UserRepositoryPort {
         }
         UserJpaEntity savedEntity = jpaRepository.save(entity);
         return userMapper.toDomain(savedEntity);
+    }
+
+    @Override
+    public boolean existsByEmail(String email) {
+        return Boolean.TRUE.equals(jpaRepository.existsByEmail(email));
     }
 }

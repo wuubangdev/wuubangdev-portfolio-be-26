@@ -1,6 +1,7 @@
 package com.wuubangdev.portfolio.modules.post.infrastructure.adapter.input.rest;
 
 import com.wuubangdev.portfolio.infrastructure.global.api.PageResponse;
+import com.wuubangdev.portfolio.modules.post.application.dto.PostEngagementResponse;
 import com.wuubangdev.portfolio.modules.post.application.dto.PostRequest;
 import com.wuubangdev.portfolio.modules.post.application.dto.PostResponse;
 import com.wuubangdev.portfolio.modules.post.application.service.PostService;
@@ -43,6 +44,21 @@ public class PostController {
     @GetMapping("/api/v1/posts/{id}/related")
     public ResponseEntity<List<PostResponse>> getRelatedPosts(@PathVariable Long id, @RequestParam(defaultValue = "5") int limit) {
         return ResponseEntity.ok(postService.getRelatedPosts(id, limit));
+    }
+
+    @PostMapping("/api/v1/posts/{slug}/like")
+    public ResponseEntity<PostEngagementResponse> likePost(@PathVariable String slug) {
+        return ResponseEntity.ok(postService.likePost(slug));
+    }
+
+    @DeleteMapping("/api/v1/posts/{slug}/like")
+    public ResponseEntity<PostEngagementResponse> unlikePost(@PathVariable String slug) {
+        return ResponseEntity.ok(postService.unlikePost(slug));
+    }
+
+    @PostMapping("/api/v1/posts/{slug}/share")
+    public ResponseEntity<PostEngagementResponse> sharePost(@PathVariable String slug) {
+        return ResponseEntity.ok(postService.sharePost(slug));
     }
 
     // --- ADMIN ---

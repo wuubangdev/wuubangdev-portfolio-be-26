@@ -10,6 +10,7 @@ public record EducationResponse(
         LocalDate startDate,
         LocalDate endDate,
         String description,
+        String logoUrl,
         String location,
         Integer displayOrder,
         Boolean isPublic

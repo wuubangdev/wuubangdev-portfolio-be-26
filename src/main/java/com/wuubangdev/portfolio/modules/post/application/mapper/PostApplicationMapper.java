@@ -1,6 +1,7 @@
 package com.wuubangdev.portfolio.modules.post.application.mapper;
 
 import com.wuubangdev.portfolio.modules.post.application.dto.PostRequest;
+import com.wuubangdev.portfolio.modules.post.application.dto.PostEngagementResponse;
 import com.wuubangdev.portfolio.modules.post.application.dto.PostResponse;
 import com.wuubangdev.portfolio.modules.post.domain.model.Post;
 import org.springframework.stereotype.Component;
@@ -19,15 +20,19 @@ public class PostApplicationMapper {
                 .tags(request.tags())
                 .published(Boolean.TRUE.equals(request.published()))
                 .author(request.author())
-                .titleSeo(request.titleSeo())
-                .descriptionSeo(request.descriptionSeo())
-                .thumbnailSeo(request.thumbnailSeo())
+                .titleSeo(defaultIfBlank(request.titleSeo(), request.title()))
+                .descriptionSeo(defaultIfBlank(request.descriptionSeo(), request.summary()))
+                .thumbnailSeo(defaultIfBlank(request.thumbnailSeo(), request.coverImageUrl()))
+                .seoKeywords(request.seoKeywords())
+                .canonicalUrl(request.canonicalUrl())
+                .indexable(request.indexable() == null ? Boolean.TRUE : request.indexable())
                 .likes(0)
                 .hearts(0)
                 .commentsCount(0)
                 .shares(0)
+                .status(Boolean.TRUE.equals(request.published()) ? "PUBLISHED" : "DRAFT")
                 .displayOrder(request.displayOrder())
-                .isHidden(request.isHidden())
+                .isHidden(Boolean.TRUE.equals(request.isHidden()))
                 .build();
     }
 
@@ -41,11 +46,15 @@ public class PostApplicationMapper {
         post.setTags(request.tags());
         post.setPublished(request.published());
         post.setAuthor(request.author());
-        post.setTitleSeo(request.titleSeo());
-        post.setDescriptionSeo(request.descriptionSeo());
-        post.setThumbnailSeo(request.thumbnailSeo());
+        post.setTitleSeo(defaultIfBlank(request.titleSeo(), request.title()));
+        post.setDescriptionSeo(defaultIfBlank(request.descriptionSeo(), request.summary()));
+        post.setThumbnailSeo(defaultIfBlank(request.thumbnailSeo(), request.coverImageUrl()));
+        post.setSeoKeywords(request.seoKeywords());
+        post.setCanonicalUrl(request.canonicalUrl());
+        post.setIndexable(request.indexable() == null ? Boolean.TRUE : request.indexable());
+        post.setStatus(Boolean.TRUE.equals(request.published()) ? "PUBLISHED" : "DRAFT");
         post.setDisplayOrder(request.displayOrder());
-        post.setIsHidden(request.isHidden());
+        post.setIsHidden(Boolean.TRUE.equals(request.isHidden()));
         return post;
     }
 
@@ -64,6 +73,9 @@ public class PostApplicationMapper {
                 post.getTitleSeo(),
                 post.getDescriptionSeo(),
                 post.getThumbnailSeo(),
+                post.getSeoKeywords(),
+                post.getCanonicalUrl(),
+                post.getIndexable(),
                 post.getLikes(),
                 post.getHearts(),
                 post.getCommentsCount(),
@@ -73,5 +85,18 @@ public class PostApplicationMapper {
                 post.getDisplayOrder(),
                 post.getIsHidden()
         );
+    }
+
+    public PostEngagementResponse toEngagementResponse(Post post) {
+        return new PostEngagementResponse(
+                post.getId(),
+                post.getSlug(),
+                post.getLikes(),
+                post.getShares()
+        );
+    }
+
+    private String defaultIfBlank(String value, String fallback) {
+        return value == null || value.isBlank() ? fallback : value;
     }
 }

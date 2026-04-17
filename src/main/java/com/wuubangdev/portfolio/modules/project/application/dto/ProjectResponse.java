@@ -1,5 +1,6 @@
 package com.wuubangdev.portfolio.modules.project.application.dto;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public record ProjectResponse(
@@ -16,5 +17,12 @@ public record ProjectResponse(
         String githubUrl,
         String groupName,
         Boolean featured,
-        Integer displayOrder
+        Integer displayOrder,
+        String titleSeo,
+        String descriptionSeo,
+        String thumbnailSeo,
+        List<String> seoKeywords,
+        String canonicalUrl,
+        Boolean indexable,
+        LocalDateTime createdAt
 ) {}

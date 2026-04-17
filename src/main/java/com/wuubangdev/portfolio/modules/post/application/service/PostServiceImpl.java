@@ -3,6 +3,7 @@ package com.wuubangdev.portfolio.modules.post.application.service;
 import com.wuubangdev.portfolio.infrastructure.global.api.PageResponse;
 import com.wuubangdev.portfolio.infrastructure.global.exception.BusinessException;
 import com.wuubangdev.portfolio.infrastructure.global.exception.ResourceNotFoundException;
+import com.wuubangdev.portfolio.modules.post.application.dto.PostEngagementResponse;
 import com.wuubangdev.portfolio.modules.post.application.mapper.PostApplicationMapper;
 import com.wuubangdev.portfolio.modules.post.application.dto.PostRequest;
 import com.wuubangdev.portfolio.modules.post.application.dto.PostResponse;
@@ -92,6 +93,30 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    @Transactional
+    public PostEngagementResponse likePost(String slug) {
+        Post post = getPublishedPostBySlug(slug);
+        post.setLikes(increment(post.getLikes()));
+        return postApplicationMapper.toEngagementResponse(postRepositoryPort.save(post));
+    }
+
+    @Override
+    @Transactional
+    public PostEngagementResponse unlikePost(String slug) {
+        Post post = getPublishedPostBySlug(slug);
+        post.setLikes(decrement(post.getLikes()));
+        return postApplicationMapper.toEngagementResponse(postRepositoryPort.save(post));
+    }
+
+    @Override
+    @Transactional
+    public PostEngagementResponse sharePost(String slug) {
+        Post post = getPublishedPostBySlug(slug);
+        post.setShares(increment(post.getShares()));
+        return postApplicationMapper.toEngagementResponse(postRepositoryPort.save(post));
+    }
+
+    @Override
     public PageResponse<PostResponse> getPublishedPostsPaged(int page, int size) {
         List<PostResponse> content = postRepositoryPort.findAllPublishedPaged(page, size).stream().map(postApplicationMapper::toResponse).toList();
         long total = postRepositoryPort.countAllPublished();
@@ -121,5 +146,22 @@ public class PostServiceImpl implements PostService {
         } catch (Exception e) {
             return Locale.getDefault();
         }
+    }
+
+    private Post getPublishedPostBySlug(String slug) {
+        Post post = postRepositoryPort.findBySlug(slug)
+                .orElseThrow(() -> new ResourceNotFoundException(getMessage("post.not.found")));
+        if (!Boolean.TRUE.equals(post.getPublished()) || Boolean.TRUE.equals(post.getIsHidden())) {
+            throw new ResourceNotFoundException(getMessage("post.not.found"));
+        }
+        return post;
+    }
+
+    private int increment(Integer value) {
+        return value == null ? 1 : value + 1;
+    }
+
+    private int decrement(Integer value) {
+        return value == null || value <= 0 ? 0 : value - 1;
     }
 }

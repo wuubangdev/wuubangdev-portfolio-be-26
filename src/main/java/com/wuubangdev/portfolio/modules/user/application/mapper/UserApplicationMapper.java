@@ -11,7 +11,9 @@ public class UserApplicationMapper {
         return new UserResponse(
                 user.getUsername(),
                 user.getEmail(),
-                user.getRoles()
+                user.getRoles(),
+                !Boolean.FALSE.equals(user.getEnabled()),
+                user.getUserType()
         );
     }
 }

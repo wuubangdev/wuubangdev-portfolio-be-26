@@ -31,4 +31,10 @@ public class ProjectJpaEntity extends BaseEntity {
     private String groupName;
     private Boolean featured;
     private Integer displayOrder;
+    private String titleSeo;
+    private String descriptionSeo;
+    private String thumbnailSeo;
+    private List<String> seoKeywords;
+    private String canonicalUrl;
+    private Boolean indexable;
 }

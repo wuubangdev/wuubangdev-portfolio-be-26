@@ -2,6 +2,7 @@ package com.wuubangdev.portfolio.infrastructure.global.database;
 
 import com.wuubangdev.portfolio.modules.user.domain.model.Role;
 import com.wuubangdev.portfolio.modules.user.domain.model.User;
+import com.wuubangdev.portfolio.modules.user.domain.model.UserType;
 import com.wuubangdev.portfolio.modules.user.domain.port.UserRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +35,8 @@ public class DataSeeder implements CommandLineRunner {
                             .email("admin@wuubangdev.com")
                             .password(passwordEncoder.encode("admin123"))
                             .roles(List.of(Role.ROLE_ADMIN, Role.ROLE_USER))
+                            .enabled(true)
+                            .userType(UserType.BASIC)
                             .build();
 
                     // Lưu thông qua Port

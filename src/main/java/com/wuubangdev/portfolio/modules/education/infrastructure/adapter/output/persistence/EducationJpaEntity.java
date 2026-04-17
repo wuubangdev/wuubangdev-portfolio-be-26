@@ -15,6 +15,7 @@ public class EducationJpaEntity extends BaseEntity {
     private LocalDate startDate;
     private LocalDate endDate;
     private String description;
+    private String logoUrl;
     private String location;
     private Integer displayOrder;
     private Boolean isPublic;

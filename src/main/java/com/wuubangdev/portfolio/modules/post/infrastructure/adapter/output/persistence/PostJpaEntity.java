@@ -32,8 +32,14 @@ public class PostJpaEntity extends BaseEntity {
     private String titleSeo;
     private String descriptionSeo;
     private String thumbnailSeo;
+    private List<String> seoKeywords;
+    private String canonicalUrl;
+    private Boolean indexable;
     private Integer likes;
     private Integer hearts;
     private Integer commentsCount;
     private Integer shares;
+    private String status;
+    private Integer displayOrder;
+    private Boolean isHidden;
 }

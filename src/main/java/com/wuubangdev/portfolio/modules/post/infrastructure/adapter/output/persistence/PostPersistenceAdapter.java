@@ -27,10 +27,17 @@ public class PostPersistenceAdapter implements PostRepositoryPort {
                 .titleSeo(e.getTitleSeo())
                 .descriptionSeo(e.getDescriptionSeo())
                 .thumbnailSeo(e.getThumbnailSeo())
+                .seoKeywords(e.getSeoKeywords())
+                .canonicalUrl(e.getCanonicalUrl())
+                .indexable(e.getIndexable())
                 .likes(e.getLikes())
                 .hearts(e.getHearts())
                 .commentsCount(e.getCommentsCount())
                 .shares(e.getShares())
+                .status(e.getStatus())
+                .createdAt(e.getCreatedAt())
+                .displayOrder(e.getDisplayOrder())
+                .isHidden(e.getIsHidden())
                 .build();
     }
 
@@ -44,10 +51,16 @@ public class PostPersistenceAdapter implements PostRepositoryPort {
         e.setTitleSeo(p.getTitleSeo());
         e.setDescriptionSeo(p.getDescriptionSeo());
         e.setThumbnailSeo(p.getThumbnailSeo());
+        e.setSeoKeywords(p.getSeoKeywords());
+        e.setCanonicalUrl(p.getCanonicalUrl());
+        e.setIndexable(p.getIndexable());
         e.setLikes(p.getLikes());
         e.setHearts(p.getHearts());
         e.setCommentsCount(p.getCommentsCount());
         e.setShares(p.getShares());
+        e.setStatus(p.getStatus());
+        e.setDisplayOrder(p.getDisplayOrder());
+        e.setIsHidden(p.getIsHidden());
         return e;
     }
 

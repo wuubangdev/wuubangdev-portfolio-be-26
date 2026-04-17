@@ -3,6 +3,10 @@ package com.wuubangdev.portfolio.modules.user.infrastructure.adapter.input.rest;
 import com.wuubangdev.portfolio.modules.user.application.dto.LoginRequest;
 import com.wuubangdev.portfolio.modules.user.application.dto.LoginResponse;
 import com.wuubangdev.portfolio.modules.user.application.dto.RegisterRequest;
+import com.wuubangdev.portfolio.modules.user.application.dto.ForgotPasswordRequest;
+import com.wuubangdev.portfolio.modules.user.application.dto.RefreshTokenRequest;
+import com.wuubangdev.portfolio.modules.user.application.dto.ResetPasswordRequest;
+import com.wuubangdev.portfolio.modules.user.application.dto.SocialLoginRequest;
 import com.wuubangdev.portfolio.modules.user.application.dto.UserResponse;
 import com.wuubangdev.portfolio.modules.user.application.service.AuthService;
 import jakarta.validation.Valid;
@@ -35,6 +39,39 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
         return ResponseEntity.ok(authService.login(request));
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<LoginResponse> refreshToken(@Valid @RequestBody RefreshTokenRequest request) {
+        return ResponseEntity.ok(authService.refreshToken(request));
+    }
+
+    @PostMapping("/social/google")
+    public ResponseEntity<LoginResponse> loginWithGoogle(@Valid @RequestBody SocialLoginRequest request) {
+        return ResponseEntity.ok(authService.loginWithGoogle(request));
+    }
+
+    @PostMapping("/social/github")
+    public ResponseEntity<LoginResponse> loginWithGithub(@Valid @RequestBody SocialLoginRequest request) {
+        return ResponseEntity.ok(authService.loginWithGithub(request));
+    }
+
+    @GetMapping("/activate")
+    public ResponseEntity<String> activateAccount(@RequestParam String token) {
+        authService.activateAccount(token);
+        return ResponseEntity.ok(getMessage("auth.activation.success"));
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<String> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+        authService.forgotPassword(request);
+        return ResponseEntity.ok(getMessage("auth.forgot.password.sent"));
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<String> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        authService.resetPassword(request);
+        return ResponseEntity.ok(getMessage("auth.reset.success"));
     }
 
     @GetMapping("/me")

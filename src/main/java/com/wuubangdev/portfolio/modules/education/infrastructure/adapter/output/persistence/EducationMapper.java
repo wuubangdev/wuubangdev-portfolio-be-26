@@ -15,6 +15,7 @@ public class EducationMapper {
                 .startDate(entity.getStartDate())
                 .endDate(entity.getEndDate())
                 .description(entity.getDescription())
+                .logoUrl(entity.getLogoUrl())
                 .location(entity.getLocation())
                 .displayOrder(entity.getDisplayOrder())
                 .isPublic(entity.getIsPublic())
@@ -30,6 +31,7 @@ public class EducationMapper {
         entity.setStartDate(domain.getStartDate());
         entity.setEndDate(domain.getEndDate());
         entity.setDescription(domain.getDescription());
+        entity.setLogoUrl(domain.getLogoUrl());
         entity.setLocation(domain.getLocation());
         entity.setDisplayOrder(domain.getDisplayOrder());
         entity.setIsPublic(domain.getIsPublic());

@@ -33,4 +33,28 @@ public class MailService {
         );
         sendEmail(adminEmail, emailSubject, emailText);
     }
+
+    public void sendContactNotificationToAdmin(String adminEmail, String subject, String text) {
+        sendEmail(adminEmail, subject, text);
+    }
+
+    public void sendContactAutoReply(String to, String subject, String text) {
+        sendEmail(to, subject, text);
+    }
+
+    public void sendAccountActivationEmail(String to, String subject, String text) {
+        sendEmail(to, subject, text);
+    }
+
+    public void sendResetPasswordEmail(String to, String username, String resetPasswordLink) {
+        String subject = "Reset your password";
+        String text = String.format(
+                "Hi %s,\n\n" +
+                        "We received a request to reset your password.\n" +
+                        "Use the link below to set a new password:\n%s\n\n" +
+                        "If you did not request this, you can ignore this email.",
+                username, resetPasswordLink
+        );
+        sendEmail(to, subject, text);
+    }
 }

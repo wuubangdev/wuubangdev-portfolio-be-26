@@ -28,6 +28,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         return org.springframework.security.core.userdetails.User.builder()
                 .username(user.getUsername())
                 .password(user.getPassword())
+                .disabled(Boolean.FALSE.equals(user.getEnabled()))
                 .authorities(user.getRoles().stream()
                         .map(role -> new SimpleGrantedAuthority(role.name())) // Dùng enum.name() (ví dụ: "ROLE_ADMIN")
                         .collect(Collectors.toList()))

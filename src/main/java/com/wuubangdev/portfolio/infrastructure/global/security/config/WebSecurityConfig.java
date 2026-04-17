@@ -73,6 +73,9 @@ public class WebSecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/v1/posts/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/skills/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/experiences/**").permitAll()
+                        // Public post engagement
+                        .requestMatchers(HttpMethod.POST, "/api/v1/posts/*/like", "/api/v1/posts/*/share").permitAll()
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/posts/*/like").permitAll()
                         // Contact submit
                         .requestMatchers(HttpMethod.POST, "/api/v1/contact").permitAll()
                         // Admin endpoints

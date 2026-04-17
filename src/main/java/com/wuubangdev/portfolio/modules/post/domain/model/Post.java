@@ -21,6 +21,9 @@ public class Post {
     private String titleSeo;
     private String descriptionSeo;
     private String thumbnailSeo;
+    private List<String> seoKeywords;
+    private String canonicalUrl;
+    private Boolean indexable;
     private Integer likes;
     private Integer hearts;
     private Integer commentsCount;

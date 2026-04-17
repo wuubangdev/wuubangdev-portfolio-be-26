@@ -10,6 +10,8 @@ import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.Map;
+import java.util.UUID;
 
 @Component
 @Slf4j
@@ -25,11 +27,31 @@ public class JwtTokenProvider {
 
     // 1. Tạo Token từ thông tin Username
     public String generateToken(String username) {
+        return generateAccessToken(username);
+    }
+
+    public String generateAccessToken(String username) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtProperties.getExpirationMs());
 
         return Jwts.builder()
                 .subject(username)
+                .id(UUID.randomUUID().toString())
+                .claims(Map.of("type", "access"))
+                .issuedAt(now)
+                .expiration(expiryDate)
+                .signWith(getSigningKey())
+                .compact();
+    }
+
+    public String generateRefreshToken(String username) {
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + jwtProperties.getRefreshExpirationMs());
+
+        return Jwts.builder()
+                .subject(username)
+                .id(UUID.randomUUID().toString())
+                .claims(Map.of("type", "refresh"))
                 .issuedAt(now)
                 .expiration(expiryDate)
                 .signWith(getSigningKey())
@@ -48,12 +70,29 @@ public class JwtTokenProvider {
 
     // 3. Kiểm tra Token có hợp lệ không
     public boolean validateToken(String authToken) {
+        return parseClaims(authToken) != null;
+    }
+
+    public boolean validateRefreshToken(String refreshToken) {
+        Claims claims = parseClaims(refreshToken);
+        return claims != null && "refresh".equals(claims.get("type", String.class));
+    }
+
+    public long getAccessTokenExpirationMs() {
+        return jwtProperties.getExpirationMs();
+    }
+
+    public long getRefreshTokenExpirationMs() {
+        return jwtProperties.getRefreshExpirationMs();
+    }
+
+    private Claims parseClaims(String token) {
         try {
-            Jwts.parser()
+            return Jwts.parser()
                     .verifyWith(getSigningKey())
                     .build()
-                    .parseSignedClaims(authToken);
-            return true;
+                    .parseSignedClaims(token)
+                    .getPayload();
         } catch (MalformedJwtException ex) {
             log.error("Invalid JWT token");
         } catch (ExpiredJwtException ex) {
@@ -63,6 +102,6 @@ public class JwtTokenProvider {
         } catch (IllegalArgumentException ex) {
             log.error("JWT claims string is empty.");
         }
-        return false;
+        return null;
     }
 }

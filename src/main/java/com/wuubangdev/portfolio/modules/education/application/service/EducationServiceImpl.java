@@ -40,6 +40,7 @@ public class EducationServiceImpl implements EducationService {
                 .startDate(request.startDate())
                 .endDate(request.endDate())
                 .description(request.description())
+                .logoUrl(request.logoUrl())
                 .location(request.location())
                 .displayOrder(request.displayOrder())
                 .isPublic(request.isPublic())
@@ -58,6 +59,7 @@ public class EducationServiceImpl implements EducationService {
         education.setStartDate(request.startDate());
         education.setEndDate(request.endDate());
         education.setDescription(request.description());
+        education.setLogoUrl(request.logoUrl());
         education.setLocation(request.location());
         education.setDisplayOrder(request.displayOrder());
         education.setIsPublic(request.isPublic());
@@ -97,6 +99,7 @@ public class EducationServiceImpl implements EducationService {
                 education.getStartDate(),
                 education.getEndDate(),
                 education.getDescription(),
+                education.getLogoUrl(),
                 education.getLocation(),
                 education.getDisplayOrder(),
                 education.getIsPublic()

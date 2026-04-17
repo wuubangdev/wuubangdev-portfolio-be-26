@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -19,4 +20,14 @@ public class User {
     private String password;
     private String email;
     private List<Role> roles;
+    private Boolean enabled;
+    private UserType userType;
+    private String googleId;
+    private String githubId;
+    private String activationToken;
+    private LocalDateTime activationTokenExpiresAt;
+    private String resetPasswordToken;
+    private LocalDateTime resetPasswordTokenExpiresAt;
+    private String refreshToken;
+    private LocalDateTime refreshTokenExpiresAt;
 }

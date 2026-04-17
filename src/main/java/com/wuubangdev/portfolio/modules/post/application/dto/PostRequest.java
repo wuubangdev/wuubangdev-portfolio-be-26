@@ -17,6 +17,9 @@ public record PostRequest(
         String titleSeo,
         String descriptionSeo,
         String thumbnailSeo,
+        List<String> seoKeywords,
+        String canonicalUrl,
+        Boolean indexable,
         Integer displayOrder,
         Boolean isHidden
 ) {}

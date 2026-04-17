@@ -9,6 +9,7 @@ public record EducationRequest(
         LocalDate startDate,
         LocalDate endDate,
         String description,
+        String logoUrl,
         String location,
         Integer displayOrder,
         Boolean isPublic

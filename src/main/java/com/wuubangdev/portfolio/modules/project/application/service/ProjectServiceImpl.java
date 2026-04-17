@@ -1,5 +1,6 @@
 package com.wuubangdev.portfolio.modules.project.application.service;
 
+import com.wuubangdev.portfolio.infrastructure.global.api.PageResponse;
 import com.wuubangdev.portfolio.infrastructure.global.exception.BusinessException;
 import com.wuubangdev.portfolio.infrastructure.global.exception.ResourceNotFoundException;
 import com.wuubangdev.portfolio.modules.project.application.mapper.ProjectApplicationMapper;
@@ -8,6 +9,8 @@ import com.wuubangdev.portfolio.modules.project.application.dto.ProjectResponse;
 import com.wuubangdev.portfolio.modules.project.domain.model.Project;
 import com.wuubangdev.portfolio.modules.project.domain.port.ProjectRepositoryPort;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,14 +33,64 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public List<ProjectResponse> getAll() {
-        return projectRepositoryPort.findAll().stream().map(projectApplicationMapper::toResponse).toList();
+    public List<ProjectResponse> getAll(String category, Boolean featured) {
+        List<Project> projects;
+        if (Boolean.TRUE.equals(featured)) {
+            projects = projectRepositoryPort.findFeatured();
+        } else if (category != null && !category.isBlank()) {
+            projects = projectRepositoryPort.findAllByCategory(category.trim());
+        } else {
+            projects = projectRepositoryPort.findAll();
+        }
+        return projects.stream().map(projectApplicationMapper::toResponse).toList();
+    }
+
+    @Override
+    public PageResponse<ProjectResponse> getAllPaged(String category, Boolean featured, int page, int size) {
+        PageRequest pageable = PageRequest.of(page, size, Sort.by(Sort.Order.asc("displayOrder"), Sort.Order.desc("id")));
+        List<Project> projects;
+        long total;
+        if (Boolean.TRUE.equals(featured)) {
+            projects = projectRepositoryPort.findFeaturedPaged(pageable);
+            total = projectRepositoryPort.countFeatured();
+        } else if (category != null && !category.isBlank()) {
+            projects = projectRepositoryPort.findByCategoryPaged(category.trim(), pageable);
+            total = projectRepositoryPort.countByCategory(category.trim());
+        } else {
+            projects = projectRepositoryPort.findAllPaged(pageable);
+            total = projectRepositoryPort.countAll();
+        }
+        return PageResponse.of(projects.stream().map(projectApplicationMapper::toResponse).toList(), page, size, total);
+    }
+
+    @Override
+    public List<ProjectResponse> getFeatured() {
+        return projectRepositoryPort.findFeatured().stream().map(projectApplicationMapper::toResponse).toList();
     }
 
     @Override
     public ProjectResponse getBySlug(String slug) {
         return projectApplicationMapper.toResponse(projectRepositoryPort.findBySlug(slug)
                 .orElseThrow(() -> new ResourceNotFoundException("Project with slug: " + slug)));
+    }
+
+    @Override
+    public ProjectResponse getById(Long id) {
+        return projectApplicationMapper.toResponse(projectRepositoryPort.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Project", id)));
+    }
+
+    @Override
+    public List<ProjectResponse> getRelatedProjects(String slug, int limit) {
+        Project project = projectRepositoryPort.findBySlug(slug)
+                .orElseThrow(() -> new ResourceNotFoundException("Project with slug: " + slug));
+        if (project.getCategory() == null || project.getCategory().isBlank()) {
+            return List.of();
+        }
+        return projectRepositoryPort.findRelatedProjects(project.getCategory(), project.getId(), limit)
+                .stream()
+                .map(projectApplicationMapper::toResponse)
+                .toList();
     }
 
     @Override @Transactional

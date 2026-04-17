@@ -16,4 +16,6 @@ public class JwtProperties {
 
     // Spring sẽ tự động hiểu app.jwt.expiration-ms -> expirationMs
     private long expirationMs;
+
+    private long refreshExpirationMs;
 }

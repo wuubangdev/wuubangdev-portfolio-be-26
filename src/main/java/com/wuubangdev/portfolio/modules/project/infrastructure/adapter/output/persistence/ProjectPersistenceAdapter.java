@@ -4,6 +4,7 @@ import com.wuubangdev.portfolio.infrastructure.global.database.MongoSequenceServ
 import com.wuubangdev.portfolio.modules.project.domain.model.Project;
 import com.wuubangdev.portfolio.modules.project.domain.port.ProjectRepositoryPort;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -22,7 +23,9 @@ public class ProjectPersistenceAdapter implements ProjectRepositoryPort {
         return Project.builder().id(e.getId()).title(e.getTitle()).slug(e.getSlug()).category(e.getCategory()).tags(e.getTags()).description(e.getDescription()).content(e.getContent())
                 .techStack(e.getTechStack()).imageUrl(e.getImageUrl()).projectUrl(e.getProjectUrl())
                 .githubUrl(e.getGithubUrl()).groupName(e.getGroupName()).featured(e.getFeatured())
-                .displayOrder(e.getDisplayOrder()).build();
+                .displayOrder(e.getDisplayOrder()).titleSeo(e.getTitleSeo()).descriptionSeo(e.getDescriptionSeo())
+                .thumbnailSeo(e.getThumbnailSeo()).seoKeywords(e.getSeoKeywords()).canonicalUrl(e.getCanonicalUrl())
+                .indexable(e.getIndexable()).createdAt(e.getCreatedAt()).build();
     }
 
     private ProjectJpaEntity toEntity(Project p) {
@@ -31,6 +34,12 @@ public class ProjectPersistenceAdapter implements ProjectRepositoryPort {
         e.setTechStack(p.getTechStack()); e.setImageUrl(p.getImageUrl()); e.setProjectUrl(p.getProjectUrl());
         e.setGithubUrl(p.getGithubUrl()); e.setGroupName(p.getGroupName()); e.setFeatured(p.getFeatured());
         e.setDisplayOrder(p.getDisplayOrder());
+        e.setTitleSeo(p.getTitleSeo());
+        e.setDescriptionSeo(p.getDescriptionSeo());
+        e.setThumbnailSeo(p.getThumbnailSeo());
+        e.setSeoKeywords(p.getSeoKeywords());
+        e.setCanonicalUrl(p.getCanonicalUrl());
+        e.setIndexable(p.getIndexable());
         return e;
     }
 
@@ -42,7 +51,16 @@ public class ProjectPersistenceAdapter implements ProjectRepositoryPort {
         }
         return toDomain(repo.save(entity));
     }
-    @Override public List<Project> findAll() { return repo.findAll().stream().map(this::toDomain).toList(); }
+    @Override public List<Project> findAll() { return repo.findAllByOrderByDisplayOrderAscIdDesc().stream().map(this::toDomain).toList(); }
+    @Override public List<Project> findAllByCategory(String category) { return repo.findByCategoryIgnoreCaseOrderByDisplayOrderAscIdDesc(category).stream().map(this::toDomain).toList(); }
+    @Override public List<Project> findFeatured() { return repo.findByFeaturedTrueOrderByDisplayOrderAscIdDesc().stream().map(this::toDomain).toList(); }
+    @Override public List<Project> findAllPaged(Pageable pageable) { return repo.findAllBy(pageable).stream().map(this::toDomain).toList(); }
+    @Override public List<Project> findByCategoryPaged(String category, Pageable pageable) { return repo.findByCategoryIgnoreCase(category, pageable).stream().map(this::toDomain).toList(); }
+    @Override public List<Project> findFeaturedPaged(Pageable pageable) { return repo.findByFeaturedTrue(pageable).stream().map(this::toDomain).toList(); }
+    @Override public long countAll() { return repo.count(); }
+    @Override public long countByCategory(String category) { return repo.countByCategoryIgnoreCase(category); }
+    @Override public long countFeatured() { return repo.countByFeaturedTrue(); }
+    @Override public List<Project> findRelatedProjects(String category, Long excludeId, int limit) { return repo.findByCategoryIgnoreCaseAndIdNot(category, excludeId, org.springframework.data.domain.PageRequest.of(0, limit)).stream().map(this::toDomain).toList(); }
     @Override public Optional<Project> findById(Long id) { return repo.findById(id).map(this::toDomain); }
     @Override public Optional<Project> findBySlug(String slug) { return repo.findBySlug(slug).map(this::toDomain); }
     @Override public void deleteById(Long id) { repo.deleteById(id); }

@@ -23,6 +23,12 @@ public class ProjectApplicationMapper {
                 .groupName(request.groupName())
                 .featured(Boolean.TRUE.equals(request.featured()))
                 .displayOrder(request.displayOrder())
+                .titleSeo(defaultIfBlank(request.titleSeo(), request.title()))
+                .descriptionSeo(defaultIfBlank(request.descriptionSeo(), request.description()))
+                .thumbnailSeo(defaultIfBlank(request.thumbnailSeo(), request.imageUrl()))
+                .seoKeywords(request.seoKeywords())
+                .canonicalUrl(request.canonicalUrl())
+                .indexable(request.indexable() == null ? Boolean.TRUE : request.indexable())
                 .build();
     }
 
@@ -40,6 +46,12 @@ public class ProjectApplicationMapper {
         project.setGroupName(request.groupName());
         project.setFeatured(request.featured());
         project.setDisplayOrder(request.displayOrder());
+        project.setTitleSeo(defaultIfBlank(request.titleSeo(), request.title()));
+        project.setDescriptionSeo(defaultIfBlank(request.descriptionSeo(), request.description()));
+        project.setThumbnailSeo(defaultIfBlank(request.thumbnailSeo(), request.imageUrl()));
+        project.setSeoKeywords(request.seoKeywords());
+        project.setCanonicalUrl(request.canonicalUrl());
+        project.setIndexable(request.indexable() == null ? Boolean.TRUE : request.indexable());
         return project;
     }
 
@@ -58,7 +70,18 @@ public class ProjectApplicationMapper {
                 project.getGithubUrl(),
                 project.getGroupName(),
                 project.getFeatured(),
-                project.getDisplayOrder()
+                project.getDisplayOrder(),
+                project.getTitleSeo(),
+                project.getDescriptionSeo(),
+                project.getThumbnailSeo(),
+                project.getSeoKeywords(),
+                project.getCanonicalUrl(),
+                project.getIndexable(),
+                project.getCreatedAt()
         );
+    }
+
+    private String defaultIfBlank(String value, String fallback) {
+        return value == null || value.isBlank() ? fallback : value;
     }
 }
